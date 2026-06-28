@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผังอภิธรรม V.3.71</title>
+    <style>
+        :root {
+            /* โทนสีปัจจุบัน (สำหรับกรอบ) */
+            --bg: rgb(244,238,224); --fg: rgb(60,60,60); --tb: rgb(228,220,204); --bc: rgb(200,190,175);
+            --c1: rgb(220,50,50); --c2: rgb(230,110,20); --c3: rgb(240,160,0); --c4: rgb(220,190,0);
+            --c5: rgb(180,180,0); --c6: rgb(120,190,0); --c7: rgb(40,180,40); --c8: rgb(0,170,150);
+            --c9: rgb(30,120,220); --c10: rgb(120,70,210); --c11: rgb(180,50,200); --c12: rgb(220,60,140);
+            --c13: rgb(160,100,50); --c14: rgb(130,130,130); --c15: rgb(60,60,60); --c16: rgb(255,255,255);
+        }
+        .dark {
+            --bg: rgb(30,30,30); --fg: rgb(220,220,220); --tb: rgb(50,50,50); --bc: rgb(70,70,70); --nb: rgb(51,51,51);
+            --c1: rgb(255,100,100); --c2: rgb(255,150,80); --c3: rgb(255,190,80); --c4: rgb(240,220,80);
+            --c5: rgb(220,220,80); --c6: rgb(180,230,80); --c7: rgb(100,220,100); --c8: rgb(80,220,200);
+            --c9: rgb(100,180,255); --c10: rgb(160,130,255); --c11: rgb(220,130,255); --c12: rgb(255,120,190);
+            --c13: rgb(190,140,100); --c14: rgb(170,170,170); --c15: rgb(60,60,60); --c16: rgb(220,220,220);
+        }
+        
+        /* โทนสีเดิม (สำหรับไฮไลต์) */
+        body.hl-mode {
+            --c1: rgb(255,153,153); --c2: rgb(255,191,128); --c3: rgb(255,230,128); --c4: rgb(255,242,128);
+            --c5: rgb(255,255,128); --c6: rgb(217,255,128); --c7: rgb(153,255,153); --c8: rgb(128,255,204);
+            --c9: rgb(128,204,255); --c10: rgb(191,128,255); --c11: rgb(255,128,255); --c12: rgb(255,128,191);
+            --c13: rgb(210,180,140); --c14: rgb(192,192,192);
+        }
+        body.dark.hl-mode {
+            --c1: rgb(128,0,0); --c2: rgb(153,51,0); --c3: rgb(153,102,0); --c4: rgb(128,128,0);
+            --c5: rgb(102,102,0); --c6: rgb(77,128,0); --c7: rgb(0,102,0); --c8: rgb(0,102,102);
+            --c9: rgb(0,51,153); --c10: rgb(51,0,153); --c11: rgb(102,0,102); --c12: rgb(128,0,64);
+            --c13: rgb(102,64,32); --c14: rgb(85,85,85);
+        }
+        
+        .shader::after { content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgb(220,204,177); mix-blend-mode: multiply; pointer-events: none; z-index: 99999; }
+        
+        body { margin: 0; background: var(--bg); color: var(--fg); font-family: sans-serif; transition: background 0.3s, color 0.3s; overflow: hidden; }
+        button { cursor: pointer; padding: 4px 8px; border: 1px solid rgb(170,170,170); border-radius: 4px; background: rgb(255,255,255); color: rgb(0,0,0); transition: all 0.2s; white-space: nowrap; }
+        button:hover { background: rgb(238,238,238); }
+        .c { width: 26px; height: 26px; border-radius: 50%; padding: 0; border: 2px solid rgba(0,0,0,0.2); box-sizing: border-box; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: bold; color: rgba(0,0,0,0.6); }
+        .c:hover { transform: scale(1.2); box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        
+        .sys-ui { position: fixed; top: 0; left: 0; width: 100vw; background: var(--tb); padding: 8px 10px; border: none; border-bottom: 1px solid var(--bc); display: flex; gap: 8px; z-index: 999; align-items: center; box-sizing: border-box; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; border-radius: 0; box-shadow: none; margin: 0; }
+        .sys-ui::-webkit-scrollbar { height: 6px; }
+        .sys-ui::-webkit-scrollbar-thumb { background: rgb(170,170,170); border-radius: 3px; }
+        
+        .ui-col { display: flex; flex-direction: column; gap: 4px; border-right: 1px solid rgb(170,170,170); padding-right: 8px; justify-content: center; }
+        .ui-col.no-border { border-right: none; padding-right: 0; }
+        .sys-ui button { margin: 0; padding: 2px 8px; font-size: 13px; height: 26px; }
+        .sys-ui .tool-btn { width: 30px; height: 26px; font-size: 14px; display:flex; justify-content:center; align-items:center; padding: 0; }
+        
+        .flex-row { display: flex; gap: 4px; }
+        
+        #float-ui-btn { position: fixed; top: 10px; left: 10px; z-index: 10000; display: none; background: rgb(255,255,255); color: rgb(0,0,0); border: 1px solid rgb(170,170,170); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px; align-items: center; justify-content: center; text-shadow: none !important; }
+        #float-ui-btn:hover { background: rgb(238,238,238); }
+        
+        .huge-canvas { position: absolute; width: 20000px; height: 20000px; transform-origin: 0 0; }
+        
+        .n-ab { position: absolute; width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bc); background: transparent; box-sizing: border-box; cursor: pointer; transition: all 0.1s; }
+        .n-ab.sel { border-color: rgb(33,150,243) !important; box-shadow: 0 0 0 3px rgba(33,150,243,0.4); transform: scale(1.1); z-index: 10; }
+        
+        .n-ab-txt { position: absolute; padding: 10px; cursor: grab; color: var(--fg); min-width: 80px; min-height: 40px; text-align: left; border-radius: 6px; font-size: 18px; font-weight: normal; background: var(--bg); border: 4px solid var(--bc); box-shadow: 0 2px 5px rgba(0,0,0,0.1); box-sizing: border-box; overflow: visible; }
+        .n-ab-txt.sel { border-color: rgb(33,150,243) !important; box-shadow: 0 0 0 3px rgba(33,150,243,0.3); }
+
+        .nt { outline: none; font-size: 18px; min-width: 40px; width: 100%; height: 100%; box-sizing: border-box; }
+        .dx { position: absolute; left: -10px; top: -10px; background: rgb(255,77,77); color: rgb(255,255,255); border-radius: 50%; width: 20px; height: 20px; text-align: center; line-height: 18px; cursor: pointer; font-size: 12px; display: none; z-index: 4; }
+        .n-ab-txt:hover .dx, .n-ab-txt.sel .dx { display: block; }
+        
+        .selBox { position: absolute; border: 1px dashed rgb(33,150,243); background: rgba(33,150,243,0.1); z-index: 9999; display: none; pointer-events: none; }
+        #about-btn { position: fixed; bottom: 25px; right: 25px; width: 36px; height: 36px; background: #2196F3; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; font-family: serif; font-style: italic; font-weight: bold; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 1000; border: none; transition: all 0.2s; }
+        #about-btn:hover { background: #1976D2; transform: scale(1.1); }
+        
+        #ab-left-pane { position: absolute; top: 0; left: 0; width: 25vw; height: 100vh; overflow: hidden; border-right: 1px solid var(--bc); background: var(--bg); box-sizing: border-box; transition: border-color 0.2s; }
+        #ab-right-pane { position: absolute; top: 0; left: 25vw; width: 75vw; height: 100vh; overflow: hidden; background: var(--bg); box-sizing: border-box; }
+    </style>
+</head>
+<body id="bd" style="" class="">
+    <div id="sys-modal" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);z-index:9999999;display:none;justify-content:center;align-items:center;">
+        <div style="background:var(--tb);padding:20px;border-radius:8px;max-width:400px;width:90%;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);color:var(--fg);border:1px solid var(--bc);">
+            <div id="sys-modal-msg" style="margin-bottom:15px;word-break:break-word;font-size:16px;opacity:0.85;"></div>
+            <input type="text" id="sys-modal-inp" style="display:none;width:100%;margin-bottom:15px;padding:8px;box-sizing:border-box;border-radius:4px;border:1px solid var(--bc);background:var(--bg);color:var(--fg);">
+            <div style="display:flex;justify-content:center;gap:10px;">
+                <button onclick="window.sysModalOk()" style="background:rgb(33,150,243);color:#fff;border:none;padding:6px 15px;border-radius:4px;font-weight:bold;">ตกลง</button>
+                <button id="sys-modal-cancel" onclick="window.sysModalCancel()" style="display:none;background:rgb(244,67,54);color:#fff;border:none;padding:6px 15px;border-radius:4px;font-weight:bold;">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cropUI" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:99999;display:none;pointer-events:none;">
+        <div id="cropBox" style="position:absolute;border:2px dashed rgb(255,255,255);outline:9999px solid rgba(0,0,0,0.5);background:transparent !important;pointer-events:auto;cursor:move;" onmousedown="window.cropMD(event)">
+            <div style="position:absolute;bottom:-5px;right:-5px;width:15px;height:15px;background:rgb(33,150,243);cursor:nwse-resize;" onmousedown="window.cropRMD(event)"></div>
+            <div style="position:absolute;top:-5px;left:0;transform:translateY(-100%);display:flex;gap:5px;width:max-content;max-width:90vw;flex-wrap:wrap;">
+                <button onclick="window.setCropRatio(null, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">Free</button>
+                <button onclick="window.setCropRatio(1, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">1:1</button>
+                <button onclick="window.setCropRatio(4/3, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">4:3</button>
+                <button onclick="window.setCropRatio(16/9, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">16:9</button>
+                <button onclick="window.setCropRatio(9/16, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">9:16</button>
+                <button onclick="window.setCropRatio(1.185, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">1.185:1 (PPT)</button>
+                <button onclick="window.setCustomCropRatio(event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">Custom</button>
+            </div>
+            <div style="position:absolute;bottom:-5px;right:0;transform:translateY(100%);display:flex;gap:5px;">
+                <button onclick="window.confirmCrop(event)" style="background:rgb(33,150,243);color:#fff;border:none;padding:5px 10px;border-radius:4px;">✅ ยืนยันถ่าย</button>
+                <button onclick="window.cancelCrop(event)" style="background:rgb(244,67,54);color:#fff;border:none;padding:5px 10px;border-radius:4px;">❌ ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="float-ui-btn" onclick="window.toggleUI()" title="แสดงแถบเครื่องมือ">🛠️</div>
+
+    <div id="ab-left-pane">
+        <div id="b-ab" class="huge-canvas" style="transform: translate(-6462.5px, -6339.5px) scale(0.65);" data-cx="-6462.5" data-cy="-6339.5" data-zoom="0.65">
+            <div id="selBoxAb" class="selBox" style="display: none;"></div>
+        <div class="n-ab" id="ab_c_1782117909011_4kspd" style="left: 10000px; top: 10000px;"></div><div class="n-ab" id="ab_c_1782117909011_e1fif" style="left: 10038px; top: 10000px;"></div><div class="n-ab" id="ab_c_1782117909011_igreg" style="left: 10076px; top: 10000px;"></div><div class="n-ab" id="ab_c_1782117909011_niub5" style="left: 10114px; top: 10000px;"></div><div class="n-ab" id="ab_c_1782117909011_8pp3n" style="left: 10000px; top: 10038px;"></div><div class="n-ab" id="ab_c_1782117909011_hlb28" style="left: 10038px; top: 10038px;"></div><div class="n-ab" id="ab_c_1782117909011_67g88" style="left: 10076px; top: 10038px;"></div><div class="n-ab" id="ab_c_1782117909011_kujrn" style="left: 10114px; top: 10038px;"></div><div class="n-ab" id="ab_c_1782117909011_3pqzc" style="left: 10000px; top: 10076px;"></div><div class="n-ab" id="ab_c_1782117909011_1fefm" style="left: 10038px; top: 10076px;"></div><div class="n-ab" id="ab_c_1782117909011_pexzx" style="left: 10000px; top: 10114px;"></div><div class="n-ab" id="ab_c_1782117909011_duqdy" style="left: 10038px; top: 10114px;"></div><div class="n-ab" id="ab_c_1782117909011_g6pvq" style="left: 10000px; top: 10167px;"></div><div class="n-ab" id="ab_c_1782117909011_btuli" style="left: 10038px; top: 10167px;"></div><div class="n-ab" id="ab_c_1782117909011_8549o" style="left: 10076px; top: 10167px;"></div><div class="n-ab" id="ab_c_1782117909011_gxyq3" style="left: 10114px; top: 10167px;"></div><div class="n-ab" id="ab_c_1782117909011_lihkt" style="left: 10152px; top: 10167px;"></div><div class="n-ab" id="ab_c_1782117909011_bjj38" style="left: 10190px; top: 10167px;"></div><div class="n-ab" id="ab_c_1782117909011_vnrtj" style="left: 10228px; top: 10167px;"></div><div class="n-ab" id="ab_c_1782117909011_j4r3d" style="left: 10000px; top: 10205px;"></div><div class="n-ab" id="ab_c_1782117909011_z02vf" style="left: 10038px; top: 10205px;"></div><div class="n-ab" id="ab_c_1782117909011_1iilr" style="left: 10076px; top: 10205px;"></div><div class="n-ab" id="ab_c_1782117909011_nnqkq" style="left: 10114px; top: 10205px;"></div><div class="n-ab" id="ab_c_1782117909011_yctpz" style="left: 10152px; top: 10205px;"></div><div class="n-ab" id="ab_c_1782117909011_jnyql" style="left: 10190px; top: 10205px;"></div><div class="n-ab" id="ab_c_1782117909011_a8q1u" style="left: 10228px; top: 10205px;"></div><div class="n-ab" id="ab_c_1782117909011_mohsi" style="left: 10266px; top: 10205px;"></div><div class="n-ab" id="ab_c_1782117909011_n735i" style="left: 10000px; top: 10243px;"></div><div class="n-ab" id="ab_c_1782117909011_3uk4y" style="left: 10038px; top: 10243px;"></div><div class="n-ab" id="ab_c_1782117909011_5m774" style="left: 10076px; top: 10243px;"></div><div class="n-ab" id="ab_c_1782117909011_o0u84" style="left: 10000px; top: 10296px;"></div><div class="n-ab" id="ab_c_1782117909011_v2dk3" style="left: 10038px; top: 10296px;"></div><div class="n-ab" id="ab_c_1782117909011_1nz3c" style="left: 10076px; top: 10296px;"></div><div class="n-ab" id="ab_c_1782117909011_f7twq" style="left: 10114px; top: 10296px;"></div><div class="n-ab" id="ab_c_1782117909011_gys57" style="left: 10000px; top: 10334px;"></div><div class="n-ab" id="ab_c_1782117909011_8pp0a" style="left: 10038px; top: 10334px;"></div><div class="n-ab" id="ab_c_1782117909011_9loos" style="left: 10076px; top: 10334px;"></div><div class="n-ab" id="ab_c_1782117909011_wlis7" style="left: 10114px; top: 10334px;"></div><div class="n-ab" id="ab_c_1782117909011_9y2g4" style="left: 10000px; top: 10372px;"></div><div class="n-ab" id="ab_c_1782117909011_hlcr2" style="left: 10038px; top: 10372px;"></div><div class="n-ab" id="ab_c_1782117909011_qsixd" style="left: 10076px; top: 10372px;"></div><div class="n-ab" id="ab_c_1782117909011_nod8c" style="left: 10114px; top: 10372px;"></div><div class="n-ab" id="ab_c_1782117909011_xym3p" style="left: 10000px; top: 10410px;"></div><div class="n-ab" id="ab_c_1782117909011_6q9ih" style="left: 10038px; top: 10410px;"></div><div class="n-ab" id="ab_c_1782117909011_jb7b5" style="left: 10076px; top: 10410px;"></div><div class="n-ab" id="ab_c_1782117909011_td2yn" style="left: 10114px; top: 10410px;"></div><div class="n-ab" id="ab_c_1782117909011_7wkc8" style="left: 10000px; top: 10448px;"></div><div class="n-ab" id="ab_c_1782117909011_lfonu" style="left: 10038px; top: 10448px;"></div><div class="n-ab" id="ab_c_1782117909011_gyglg" style="left: 10076px; top: 10448px;"></div><div class="n-ab" id="ab_c_1782117909011_0mx4h" style="left: 10114px; top: 10448px;"></div><div class="n-ab" id="ab_c_1782117909011_9p1m9" style="left: 10000px; top: 10486px;"></div><div class="n-ab" id="ab_c_1782117909011_y6c7z" style="left: 10038px; top: 10486px;"></div><div class="n-ab" id="ab_c_1782117909011_tyy7k" style="left: 10076px; top: 10486px;"></div><div class="n-ab" id="ab_c_1782117909011_fvcbv" style="left: 10114px; top: 10486px;"></div><div class="n-ab" id="ab_c_1782117909011_22pko" style="left: 10000px; top: 10539px;"></div><div class="n-ab" id="ab_c_1782117909011_vfr12" style="left: 10038px; top: 10539px;"></div><div class="n-ab" id="ab_c_1782117909011_ca3mx" style="left: 10076px; top: 10539px;"></div><div class="n-ab" id="ab_c_1782117909011_ccd6p" style="left: 10114px; top: 10539px;"></div><div class="n-ab" id="ab_c_1782117909011_ur1oy" style="left: 10152px; top: 10539px;"></div><div class="n-ab" id="ab_c_1782117909011_5n3ti" style="left: 10000px; top: 10577px;"></div><div class="n-ab" id="ab_c_1782117909011_0folp" style="left: 10038px; top: 10577px;"></div><div class="n-ab" id="ab_c_1782117909011_izn1s" style="left: 10076px; top: 10577px;"></div><div class="n-ab" id="ab_c_1782117909011_b91xi" style="left: 10114px; top: 10577px;"></div><div class="n-ab" id="ab_c_1782117909011_i16z9" style="left: 10152px; top: 10577px;"></div><div class="n-ab" id="ab_c_1782117909011_wfsrv" style="left: 10000px; top: 10615px;"></div><div class="n-ab" id="ab_c_1782117909011_69xs7" style="left: 10038px; top: 10615px;"></div><div class="n-ab" id="ab_c_1782117909011_hm56w" style="left: 10076px; top: 10615px;"></div><div class="n-ab" id="ab_c_1782117909011_3orfb" style="left: 10114px; top: 10615px;"></div><div class="n-ab" id="ab_c_1782117909011_hqtxr" style="left: 10152px; top: 10615px;"></div><div class="n-ab" id="ab_c_1782117909011_z6fi2" style="left: 10152px; top: 10668px;"></div><div class="n-ab" id="ab_c_1782117909011_hap1l" style="left: 10190px; top: 10668px;"></div><div class="n-ab" id="ab_c_1782117909011_s5ut4" style="left: 10228px; top: 10668px;"></div><div class="n-ab" id="ab_c_1782117909011_a1wj7" style="left: 10266px; top: 10668px;"></div><div class="n-ab" id="ab_c_1782117909011_fnctt" style="left: 10152px; top: 10706px;"></div><div class="n-ab" id="ab_c_1782117909011_fpgvf" style="left: 10190px; top: 10706px;"></div><div class="n-ab" id="ab_c_1782117909011_2s1bm" style="left: 10228px; top: 10706px;"></div><div class="n-ab" id="ab_c_1782117909011_uq6sx" style="left: 10266px; top: 10706px;"></div><div class="n-ab" id="ab_c_1782117909011_13b4w" style="left: 10152px; top: 10744px;"></div><div class="n-ab" id="ab_c_1782117909011_auyd1" style="left: 10190px; top: 10744px;"></div><div class="n-ab" id="ab_c_1782117909011_9vejp" style="left: 10228px; top: 10744px;"></div><div class="n-ab" id="ab_c_1782117909011_xhfaz" style="left: 10266px; top: 10744px;"></div><div class="n-ab" id="ab_c_1782117909011_8091m" style="left: 10000px; top: 10797px;"></div><div class="n-ab" id="ab_c_1782117909011_1tc1n" style="left: 10038px; top: 10797px;"></div><div class="n-ab" id="ab_c_1782117909011_5h7hz" style="left: 10076px; top: 10797px;"></div><div class="n-ab" id="ab_c_1782117909011_lbbb3" style="left: 10114px; top: 10797px;"></div><div class="n-ab" id="ab_c_1782117909011_bex8x" style="left: 10152px; top: 10797px;"></div><div class="n-ab" id="ab_c_1782117909011_dbisn" style="left: 10000px; top: 10835px;"></div><div class="n-ab" id="ab_c_1782117909011_vt1eq" style="left: 10038px; top: 10835px;"></div><div class="n-ab" id="ab_c_1782117909011_qkfn3" style="left: 10076px; top: 10835px;"></div><div class="n-ab" id="ab_c_1782117909011_nuvpl" style="left: 10114px; top: 10835px;"></div><div class="n-ab" id="ab_c_1782117909011_u775y" style="left: 10152px; top: 10835px;"></div><div class="n-ab" id="ab_c_1782117909011_htqu7" style="left: 10000px; top: 10873px;"></div><div class="n-ab" id="ab_c_1782117909011_fjidw" style="left: 10038px; top: 10873px;"></div><div class="n-ab" id="ab_c_1782117909011_yr9i1" style="left: 10076px; top: 10873px;"></div><div class="n-ab" id="ab_c_1782117909011_rp888" style="left: 10114px; top: 10873px;"></div><div class="n-ab" id="ab_c_1782117909011_8q52k" style="left: 10152px; top: 10873px;"></div><div class="n-ab" id="ab_c_1782117909011_z2s6j" style="left: 10000px; top: 10911px;"></div><div class="n-ab" id="ab_c_1782117909011_joz2a" style="left: 10038px; top: 10911px;"></div><div class="n-ab" id="ab_c_1782117909011_0b476" style="left: 10076px; top: 10911px;"></div><div class="n-ab" id="ab_c_1782117909011_ofi9s" style="left: 10114px; top: 10911px;"></div><div class="n-ab" id="ab_c_1782117909011_qgyy4" style="left: 10152px; top: 10911px;"></div><div class="n-ab" id="ab_c_1782117909011_wvqsf" style="left: 10000px; top: 10949px;"></div><div class="n-ab" id="ab_c_1782117909011_umtup" style="left: 10038px; top: 10949px;"></div><div class="n-ab" id="ab_c_1782117909011_9gb2b" style="left: 10076px; top: 10949px;"></div><div class="n-ab" id="ab_c_1782117909011_rhoqo" style="left: 10114px; top: 10949px;"></div><div class="n-ab" id="ab_c_1782117909011_3o13v" style="left: 10152px; top: 10949px;"></div><div class="n-ab" id="ab_c_1782117909011_y2wk8" style="left: 10000px; top: 10987px;"></div><div class="n-ab" id="ab_c_1782117909011_q489l" style="left: 10038px; top: 10987px;"></div><div class="n-ab" id="ab_c_1782117909011_zrxjg" style="left: 10076px; top: 10987px;"></div><div class="n-ab" id="ab_c_1782117909011_i4mxb" style="left: 10114px; top: 10987px;"></div><div class="n-ab" id="ab_c_1782117909011_jitb4" style="left: 10152px; top: 10987px;"></div><div class="n-ab" id="ab_c_1782117909011_bekri" style="left: 10000px; top: 11025px;"></div><div class="n-ab" id="ab_c_1782117909011_m0b9a" style="left: 10038px; top: 11025px;"></div><div class="n-ab" id="ab_c_1782117909011_llgls" style="left: 10076px; top: 11025px;"></div><div class="n-ab" id="ab_c_1782117909011_nvvxf" style="left: 10114px; top: 11025px;"></div><div class="n-ab" id="ab_c_1782117909011_sr6ce" style="left: 10152px; top: 11025px;"></div><div class="n-ab" id="ab_c_1782117909011_p5pje" style="left: 10000px; top: 11063px;"></div><div class="n-ab" id="ab_c_1782117909011_314yr" style="left: 10038px; top: 11063px;"></div><div class="n-ab" id="ab_c_1782117909011_uvkwk" style="left: 10076px; top: 11063px;"></div><div class="n-ab" id="ab_c_1782117909011_ejuri" style="left: 10114px; top: 11063px;"></div><div class="n-ab" id="ab_c_1782117909011_crqo1" style="left: 10152px; top: 11063px;"></div><div class="n-ab" id="ab_ce_1782117909011_ht2dz" style="left: 10342px; top: 10000px;"></div><div class="n-ab" id="ab_ce_1782117909012_jmfxq" style="left: 10380px; top: 10000px;"></div><div class="n-ab" id="ab_ce_1782117909012_nbdws" style="left: 10418px; top: 10000px;"></div><div class="n-ab" id="ab_ce_1782117909012_6adp9" style="left: 10456px; top: 10000px;"></div><div class="n-ab" id="ab_ce_1782117909012_of3z1" style="left: 10494px; top: 10000px;"></div><div class="n-ab" id="ab_ce_1782117909012_1n7k3" style="left: 10532px; top: 10000px;"></div><div class="n-ab" id="ab_ce_1782117909012_tbaq1" style="left: 10570px; top: 10000px;"></div><div class="n-ab" id="ab_ce_1782117909012_wfj5g" style="left: 10342px; top: 10038px;"></div><div class="n-ab" id="ab_ce_1782117909012_o04y6" style="left: 10380px; top: 10038px;"></div><div class="n-ab" id="ab_ce_1782117909012_i3xfd" style="left: 10418px; top: 10038px;"></div><div class="n-ab" id="ab_ce_1782117909012_pdx9q" style="left: 10456px; top: 10038px;"></div><div class="n-ab" id="ab_ce_1782117909012_s0ywi" style="left: 10494px; top: 10038px;"></div><div class="n-ab" id="ab_ce_1782117909012_u3aof" style="left: 10532px; top: 10038px;"></div><div class="n-ab" id="ab_ce_1782117909012_8avl4" style="left: 10342px; top: 10091px;"></div><div class="n-ab" id="ab_ce_1782117909012_0n1wd" style="left: 10380px; top: 10091px;"></div><div class="n-ab" id="ab_ce_1782117909012_u6n5d" style="left: 10418px; top: 10091px;"></div><div class="n-ab" id="ab_ce_1782117909012_t7rqe" style="left: 10456px; top: 10091px;"></div><div class="n-ab" id="ab_ce_1782117909012_i9llq" style="left: 10342px; top: 10129px;"></div><div class="n-ab" id="ab_ce_1782117909012_j350u" style="left: 10380px; top: 10129px;"></div><div class="n-ab" id="ab_ce_1782117909012_u1hka" style="left: 10418px; top: 10129px;"></div><div class="n-ab" id="ab_ce_1782117909012_dgkpd" style="left: 10342px; top: 10167px;"></div><div class="n-ab" id="ab_ce_1782117909012_w2w1v" style="left: 10380px; top: 10167px;"></div><div class="n-ab" id="ab_ce_1782117909012_ka4rn" style="left: 10418px; top: 10167px;"></div><div class="n-ab" id="ab_ce_1782117909012_iv0jy" style="left: 10456px; top: 10167px;"></div><div class="n-ab" id="ab_ce_1782117909012_8bnid" style="left: 10342px; top: 10205px;"></div><div class="n-ab" id="ab_ce_1782117909012_eopi6" style="left: 10380px; top: 10205px;"></div><div class="n-ab" id="ab_ce_1782117909012_8h7bc" style="left: 10342px; top: 10243px;"></div><div class="n-ab" id="ab_ce_1782117909012_ba42x" style="left: 10342px; top: 10296px;"></div><div class="n-ab" id="ab_ce_1782117909012_5u8os" style="left: 10380px; top: 10296px;"></div><div class="n-ab" id="ab_ce_1782117909012_vknx3" style="left: 10418px; top: 10296px;"></div><div class="n-ab" id="ab_ce_1782117909012_kr20y" style="left: 10456px; top: 10296px;"></div><div class="n-ab" id="ab_ce_1782117909012_g35ci" style="left: 10494px; top: 10296px;"></div><div class="n-ab" id="ab_ce_1782117909012_py6r5" style="left: 10532px; top: 10296px;"></div><div class="n-ab" id="ab_ce_1782117909012_z8dfy" style="left: 10570px; top: 10296px;"></div><div class="n-ab" id="ab_ce_1782117909012_qh6rl" style="left: 10342px; top: 10334px;"></div><div class="n-ab" id="ab_ce_1782117909012_niflv" style="left: 10380px; top: 10334px;"></div><div class="n-ab" id="ab_ce_1782117909012_ct07y" style="left: 10418px; top: 10334px;"></div><div class="n-ab" id="ab_ce_1782117909012_b8ls1" style="left: 10342px; top: 10372px;"></div><div class="n-ab" id="ab_ce_1782117909012_em0ls" style="left: 10380px; top: 10372px;"></div><div class="n-ab" id="ab_ce_1782117909012_o4f4m" style="left: 10342px; top: 10410px;"></div><div class="n-ab" id="ab_ce_1782117909012_knlf8" style="left: 10551px; top: 10334px;"></div><div class="n-ab" id="ab_ce_1782117909012_6ebfi" style="left: 10589px; top: 10334px;"></div><div class="n-ab" id="ab_ce_1782117909012_hay7e" style="left: 10551px; top: 10372px;"></div><div class="n-ab" id="ab_ce_1782117909012_gbch3" style="left: 10589px; top: 10372px;"></div><div class="n-ab" id="ab_ce_1782117909012_jv9j0" style="left: 10551px; top: 10410px;"></div><div class="n-ab" id="ab_ce_1782117909012_lyap4" style="left: 10589px; top: 10410px;"></div><div class="n-ab" id="ab_ce_1782117909012_lh61a" style="left: 10551px; top: 10448px;"></div><div class="n-ab" id="ab_ce_1782117909012_hig41" style="left: 10589px; top: 10448px;"></div><div class="n-ab" id="ab_ce_1782117909012_74eij" style="left: 10551px; top: 10486px;"></div><div class="n-ab" id="ab_ce_1782117909012_e1seo" style="left: 10589px; top: 10486px;"></div><div class="n-ab" id="ab_ce_1782117909012_qs597" style="left: 10551px; top: 10524px;"></div><div class="n-ab" id="ab_ce_1782117909012_ix8qo" style="left: 10589px; top: 10524px;"></div><div class="n-ab" id="ab_r_1782117909012_qleyh" style="left: 10342px; top: 10668px;"></div><div class="n-ab" id="ab_r_1782117909012_oao86" style="left: 10380px; top: 10668px;"></div><div class="n-ab" id="ab_r_1782117909012_h5qhv" style="left: 10418px; top: 10668px;"></div><div class="n-ab" id="ab_r_1782117909012_5b5xh" style="left: 10456px; top: 10668px;"></div><div class="n-ab" id="ab_r_1782117909012_nh9ct" style="left: 10342px; top: 10706px;"></div><div class="n-ab" id="ab_r_1782117909012_9wqnw" style="left: 10380px; top: 10706px;"></div><div class="n-ab" id="ab_r_1782117909012_wogpi" style="left: 10418px; top: 10706px;"></div><div class="n-ab" id="ab_r_1782117909012_n6n9t" style="left: 10456px; top: 10706px;"></div><div class="n-ab" id="ab_r_1782117909012_t79v3" style="left: 10494px; top: 10706px;"></div><div class="n-ab" id="ab_r_1782117909012_ffz3f" style="left: 10342px; top: 10744px;"></div><div class="n-ab" id="ab_r_1782117909012_5zmfu" style="left: 10380px; top: 10744px;"></div><div class="n-ab" id="ab_r_1782117909012_zm3hb" style="left: 10418px; top: 10744px;"></div><div class="n-ab" id="ab_r_1782117909012_xscny" style="left: 10456px; top: 10744px;"></div><div class="n-ab" id="ab_r_1782117909012_jwf75" style="left: 10342px; top: 10782px;"></div><div class="n-ab" id="ab_r_1782117909012_64i88" style="left: 10380px; top: 10782px;"></div><div class="n-ab" id="ab_r_1782117909012_mdmh7" style="left: 10342px; top: 10820px;"></div><div class="n-ab" id="ab_r_1782117909012_r19kh" style="left: 10342px; top: 10858px;"></div><div class="n-ab" id="ab_r_1782117909012_blvav" style="left: 10342px; top: 10896px;"></div><div class="n-ab" id="ab_r_1782117909012_i761n" style="left: 10342px; top: 10949px;"></div><div class="n-ab" id="ab_r_1782117909012_h2epb" style="left: 10342px; top: 10987px;"></div><div class="n-ab" id="ab_r_1782117909012_hblgl" style="left: 10380px; top: 10987px;"></div><div class="n-ab" id="ab_r_1782117909012_qk2e5" style="left: 10342px; top: 11025px;"></div><div class="n-ab" id="ab_r_1782117909012_4nye4" style="left: 10380px; top: 11025px;"></div><div class="n-ab" id="ab_r_1782117909012_s0qom" style="left: 10418px; top: 11025px;"></div><div class="n-ab" id="ab_r_1782117909012_8vboh" style="left: 10342px; top: 11063px;"></div><div class="n-ab" id="ab_r_1782117909012_4e3qo" style="left: 10380px; top: 11063px;"></div><div class="n-ab" id="ab_r_1782117909012_pnytd" style="left: 10418px; top: 11063px;"></div><div class="n-ab" id="ab_r_1782117909012_bln95" style="left: 10456px; top: 11063px;"></div></div>
+    </div>
+    <div id="ab-right-pane">
+        <div id="b-ab-right" class="huge-canvas" style="transform: translate(-9980px, -9980px) scale(1);" data-cx="-9980" data-cy="-9980" data-zoom="1">
+            <div id="selBoxAbRight" class="selBox" style="left: 10430.5px; top: 10300px; width: 0px; height: 0px; display: none;"></div>
+        <div class="n-ab-txt" id="ab_txt_1782117909013" style="left: 10000px; top: 10000px;"><div class="dx" onclick="delAb('ab_txt_1782117909013')" title="ลบข้อความ">x</div><div class="nt" contenteditable="true" oninput="this.dataset.m=1" onblur="if(this.dataset.m){window.doSaveStateAb();this.dataset.m=''}" onmousedown="event.stopPropagation()">พิมพ์ที่นี่...</div></div></div>
+    </div>
+    
+    <div class="sys-ui" id="ab-ui">
+        <!-- Block 1: Tools -->
+        <div class="ui-col" style="align-items:center; justify-content:center;">
+            <button class="tool-btn" style="border-radius:4px; border:1px solid rgb(170,170,170); margin-bottom:4px; text-shadow:none !important;" onclick="window.toggleUI()" title="ซ่อนแถบเครื่องมือ">🛠️</button>
+            <button class="tool-btn" style="margin-bottom:4px;" onclick="window.changeFontSize('+')" title="เพิ่มขนาดตัวอักษรกล่องที่เลือก">A+</button>
+            <button class="tool-btn" onclick="window.changeFontSize('-')" title="ลดขนาดตัวอักษรกล่องที่เลือก">A-</button>
+        </div>
+        
+        <!-- Block 2: Colors -->
+        <div class="ui-col" id="ab-colors" style="justify-content:center;"><div style="display:flex; gap:6px; align-items:stretch;">
+            <div style="display:flex; flex-direction:column; justify-content:space-between;"><div class="flex-row" style="margin-bottom:8px;"><button class="c" style="background:var(--c1)" onmousedown="event.preventDefault()" onclick="setCol('bg',1)" title="Alt+1"></button><button class="c" style="background:var(--c2)" onmousedown="event.preventDefault()" onclick="setCol('bg',2)" title="Alt+2"></button><button class="c" style="background:var(--c3)" onmousedown="event.preventDefault()" onclick="setCol('bg',3)" title="Alt+3"></button><button class="c" style="background:var(--c4)" onmousedown="event.preventDefault()" onclick="setCol('bg',4)" title="Alt+4"></button><button class="c" style="background:var(--c5)" onmousedown="event.preventDefault()" onclick="setCol('bg',5)" title="Alt+5"></button><button class="c" style="background:var(--c6)" onmousedown="event.preventDefault()" onclick="setCol('bg',6)" title="Alt+6"></button><button class="c" style="background:var(--c7)" onmousedown="event.preventDefault()" onclick="setCol('bg',7)" title="Alt+7"></button><button class="c" style="background:var(--c8)" onmousedown="event.preventDefault()" onclick="setCol('bg',8)" title="Alt+8"></button><button class="c" style="background:var(--c9)" onmousedown="event.preventDefault()" onclick="setCol('bg',9)" title="Alt+9"></button><button class="c" style="background:var(--c10)" onmousedown="event.preventDefault()" onclick="setCol('bg',10)" title="Alt+0"></button><button class="c" style="background:var(--c11)" onmousedown="event.preventDefault()" onclick="setCol('bg',11)" title="Alt+-"></button><button class="c" style="background:var(--c12)" onmousedown="event.preventDefault()" onclick="setCol('bg',12)" title="Alt+="></button><button class="c" style="background:var(--c13)" onmousedown="event.preventDefault()" onclick="setCol('bg',13)" title="Alt+["></button><button class="c" style="background:var(--c14)" onmousedown="event.preventDefault()" onclick="setCol('bg',14)" title="Alt+]"></button><button class="c" style="background:var(--c15)" onmousedown="event.preventDefault()" onclick="setCol('bg',15)" title="Alt+;"></button><button class="c" style="background:var(--c16)" onmousedown="event.preventDefault()" onclick="setCol('bg',16)" title="Alt+'"></button><button class="c" onmousedown="event.preventDefault()" onclick="setCol('bg',0)" title="Alt+\">\</button></div><div class="flex-row" style="margin-bottom:8px;"><button class="c" style="color:var(--c1);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',1)">1</button><button class="c" style="color:var(--c2);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',2)">2</button><button class="c" style="color:var(--c3);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',3)">3</button><button class="c" style="color:var(--c4);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',4)">4</button><button class="c" style="color:var(--c5);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',5)">5</button><button class="c" style="color:var(--c6);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',6)">6</button><button class="c" style="color:var(--c7);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',7)">7</button><button class="c" style="color:var(--c8);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',8)">8</button><button class="c" style="color:var(--c9);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',9)">9</button><button class="c" style="color:var(--c10);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',10)">0</button><button class="c" style="color:var(--c11);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',11)">-</button><button class="c" style="color:var(--c12);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',12)">=</button><button class="c" style="color:var(--c13);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',13)">[</button><button class="c" style="color:var(--c14);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',14)">]</button><button class="c" style="color:var(--c15);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',15)">;</button><button class="c" style="color:var(--c16);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',16)">'</button><button class="c" onmousedown="event.preventDefault()" onclick="setCol('fg',0)">\</button></div><div class="flex-row"><button class="c" style="border:3px solid var(--c1);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',1)" title="Alt+Shift+1"></button><button class="c" style="border:3px solid var(--c2);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',2)" title="Alt+Shift+2"></button><button class="c" style="border:3px solid var(--c3);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',3)" title="Alt+Shift+3"></button><button class="c" style="border:3px solid var(--c4);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',4)" title="Alt+Shift+4"></button><button class="c" style="border:3px solid var(--c5);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',5)" title="Alt+Shift+5"></button><button class="c" style="border:3px solid var(--c6);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',6)" title="Alt+Shift+6"></button><button class="c" style="border:3px solid var(--c7);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',7)" title="Alt+Shift+7"></button><button class="c" style="border:3px solid var(--c8);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',8)" title="Alt+Shift+8"></button><button class="c" style="border:3px solid var(--c9);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',9)" title="Alt+Shift+9"></button><button class="c" style="border:3px solid var(--c10);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',10)" title="Alt+Shift+0"></button><button class="c" style="border:3px solid var(--c11);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',11)" title="Alt+Shift+-"></button><button class="c" style="border:3px solid var(--c12);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',12)" title="Alt+Shift+="></button><button class="c" style="border:3px solid var(--c13);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',13)" title="Alt+Shift+["></button><button class="c" style="border:3px solid var(--c14);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',14)" title="Alt+Shift+]"></button><button class="c" style="border:3px solid var(--c15);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',15)" title="Alt+Shift+;"></button><button class="c" style="border:3px solid var(--c16);background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',16)" title="Alt+Shift+'"></button><button class="c" onmousedown="event.preventDefault()" onclick="setCol('bd',0)" title="Alt+Shift+\">\</button></div></div>
+            <button style="border:1px solid rgb(170,170,170); border-radius:4px; background:rgb(255,255,255); color:rgb(0,0,0); width:32px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; margin:0; padding:0; flex-shrink:0; align-self:stretch; min-height:94px; box-sizing:border-box;" onmousedown="event.preventDefault()" onclick="toggleHlMode()" title="สลับโทนสี (ไฮไลต์/กรอบ)">🎨</button>
+        </div></div>
+        
+        <!-- Block 3: Themes & History -->
+        <div class="ui-col" style="justify-content:center;">
+            <div class="flex-row" style="margin-bottom:4px; justify-content:center;">
+                <button onclick="window.setTheme('sepia')" style="flex:1;">Sepia</button>
+                <button onclick="window.setTheme('dark')" style="flex:1;">Dark</button>
+            </div>
+            <button onclick="window.setTheme('shader')" title="Screen Shader (Alt+M)" style="margin-bottom:4px; width:100%;">🕶️ Shader</button>
+            <div class="flex-row" style="justify-content:center;">
+                <button onclick="window.doUndoAb()" title="Undo (Alt+Z)" style="flex:1;">↩️ Undo</button>
+                <button onclick="window.doRedoAb()" title="Redo (Alt+Y)" style="flex:1;">↪️ Redo</button>
+            </div>
+        </div>
+        
+        <!-- Block 4: Pattern Manager -->
+        <div class="ui-col" style="justify-content:center;">
+            <input type="text" id="ab-search" list="ab-patterns" placeholder="ตั้งชื่อ / ค้นหา Pattern..." style="width:160px; height:26px; font-size:13px; padding:2px 4px; border:1px solid var(--bc); border-radius:4px; background:var(--bg); color:var(--fg); box-sizing:border-box; margin-bottom:4px;">
+            <datalist id="ab-patterns"></datalist>
+            <div class="flex-row" style="margin-bottom:4px;">
+                <button onclick="window.savePattern()" title="บันทึกสีปัจจุบันเก็บไว้" style="flex:1; background:rgb(230,250,230)">💾 บันทึก</button>
+                <button onclick="window.loadPattern()" title="โหลดสีจากชื่อที่พิมพ์" style="flex:1; background:rgb(230,240,255)">🔎 โหลด</button>
+            </div>
+            <div class="flex-row">
+                <button onclick="window.clearPattern()" title="ล้างสีทั้งหมดบนผัง" style="flex:1">🗑️ ล้างสี</button>
+                <button onclick="window.initAbhi(true)" title="สร้างโครงสร้างผังอภิธรรม 121 ดวงขึ้นมาใหม่" style="flex:1">🔄 สร้างผัง</button>
+            </div>
+        </div>
+
+        <!-- Block 5: Export/Import & File -->
+        <div class="ui-col no-border" style="justify-content:center;">
+            <div class="flex-row" style="margin-bottom:4px;">
+                <button onclick="$('importInput').click()" title="นำเข้าข้อมูล JSON">📥 Import</button>
+                <button onclick="window.exportJSON()" title="ส่งออกข้อมูล JSON">📤 Export</button>
+                <button onclick="window.doExportClick()" ondblclick="window.doExportDblClick()" title="คลิกเพื่อครอป | ดับเบิลคลิกเพื่อแคปจอ">📸 PNG</button>
+                <button onclick="window.saveFileHTML()" title="เซฟเป็นไฟล์ HTML (Alt+S)">💾 HTML</button>
+            </div>
+            <div class="flex-row">
+                <button onclick="window.resetAbhiView()" title="โฟกัสผังอภิธรรมและสมุดกลับมากลางจอ" style="flex:1;">🎯 โฟกัสผัง</button>
+                <button id="btn-div" onclick="window.toggleDivider()" title="เปิด/ปิดเส้นกั้น">◫ ซ่อนเส้น</button>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="importInput" style="display:none" accept=".json" onchange="window.importJSON(event)">
+    <button id="about-btn" onclick="window.showAbout()" title="เกี่ยวกับ &amp; เครดิต">i</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
+    <script>
+        const $ = id => document.getElementById(id);
+        const bd = $('bd'), bAb = $('b-ab'), sbAb = $('selBoxAb'), bAbRight = $('b-ab-right'), sbAbRight = $('selBoxAbRight');
+        
+        let uiHidden = false;
+        let abNodes = [], abHistory = [], abCurStep = -1, cxA = -5000, cyA = -6326, zoomA = 0.65, cxAR = -10000, cyAR = -10000, zoomAR = 1, dragAb = null, isMovedAb = false;
+        let abPatterns = {};
+        try { abPatterns = JSON.parse(localStorage.getItem('abPatterns') || '{}'); } catch(e) {}
+        
+        let isAddSel = false, preSel = new Set(), isPan = false, isSel = false, px, py, sx, sy;
+        let crDrag = false, crResize = false, crPx, crPy, crW, crH, crL, crT, modalCallback = null, currentCropRatio = null;
+
+        window.toggleUI = function() {
+            uiHidden = !uiHidden;
+            $('ab-ui').style.display = uiHidden ? 'none' : 'flex';
+            $('float-ui-btn').style.display = uiHidden ? 'flex' : 'none';
+        };
+
+        window.toggleHlMode = function() { bd.classList.toggle('hl-mode'); };
+
+        window.showToast = function(msg) {
+            let t = $('sys-toast');
+            if(!t) {
+                t = document.createElement('div'); t.id = 'sys-toast';
+                t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:12px 24px;border-radius:30px;z-index:9999999;font-size:15px;opacity:0;transition:opacity 0.3s;pointer-events:none;box-shadow:0 4px 10px rgba(0,0,0,0.3);text-align:center;border:1px solid rgba(255,255,255,0.1);';
+                document.body.appendChild(t);
+            }
+            t.innerHTML = msg; t.style.opacity = '1';
+            if(t.tm) clearTimeout(t.tm);
+            t.tm = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+        };
+
+        window.showAbout = function() {
+            let msg = `
+                <h2 style="margin-top:0;">ผังอภิธรรม V.3.71 (Standalone)</h2>
+                <hr style="border-color:var(--bc); margin:15px 0;">
+                <p style="font-size:14px; text-align:left;">
+                    <b>การแบ่งปัน (เครดิต):</b><br>
+                    สร้างสรรค์สำหรับใช้ส่วนตัว และเผยแผ่เป็นธรรมทานโดย : <br>
+                    <b style="color:#2196F3;">[ พระเจตภาณุ สุตธโร (P.Chetphanu Sutadharo) ]<br>
+                    [ 🪷วัดสวนธรรมพุทธรังสี จ.พระนครศรีอยุธยา (ธรรมอารี) ]<br><br>
+                    🙏ฟังธรรม ปฏิบัติธรรมออนไลน์ ร่วมกันได้ที่<br>
+                    🔵Facebook : ธรรมอารี <a href="https://www.facebook.com/dhammaaree/" target="_blank" style="color:#2196F3;">คลิกที่นี่</a> <br>
+                    🔴YouTube : ธรรมอารี <a href="https://www.youtube.com/dhamma_aree/" target="_blank" style="color:#2196F3;">คลิกที่นี่</a> <br>
+                    📅ทุกวัน เวลา ☀️7.00 น. และ 🌙18.30 น.<br><br>
+                    📢สนใจสมัคร คอร์สปฏิบัติธรรม ได้ที่ <a href="https://www.dhammaaree.com/other" target="_blank" style="color:#2196F3;">ลิงก์สมัคร</a><br>
+                    🟩Line OA ธรรมอารี-คอร์สอบรม : <a href="https://line.me/R/ti/p/@course_aree" target="_blank" style="color:#2196F3;">ลิงก์แอด</a><br>
+                    หรือ พิมพ์เพิ่มเพื่อนในไลน์ว่า @course_aree</b>
+                </p>`;
+            window.showAlert(msg);
+        };
+
+        window.showAlert = function(msg) {
+            $('sys-modal-msg').innerHTML = msg;
+            $('sys-modal-inp').style.display = 'none';
+            $('sys-modal-cancel').style.display = 'none';
+            $('sys-modal').style.display = 'flex';
+            modalCallback = null;
+        };
+
+        window.showPrompt = function(msg, def, cb) {
+            $('sys-modal-msg').innerHTML = msg;
+            let inp = $('sys-modal-inp');
+            inp.style.display = 'block'; inp.value = def || '';
+            $('sys-modal-cancel').style.display = 'inline-block';
+            $('sys-modal').style.display = 'flex';
+            modalCallback = cb; inp.focus();
+        };
+
+        window.sysModalOk = function() { $('sys-modal').style.display = 'none'; if (modalCallback) modalCallback($('sys-modal-inp').value); };
+        window.sysModalCancel = function() { $('sys-modal').style.display = 'none'; if (modalCallback) modalCallback(null); };
+        $('sys-modal-inp').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); window.sysModalOk(); } });
+
+        let isDividerVisible = true;
+        window.toggleDivider = function() {
+            isDividerVisible = !isDividerVisible;
+            $('ab-left-pane').style.borderRight = isDividerVisible ? '1px solid var(--bc)' : 'none';
+            $('btn-div').innerText = isDividerVisible ? '◫ ซ่อนเส้น' : '◫ แสดงเส้น';
+        };
+
+        window.resetAbhiView = function() {
+            zoomA = 0.65; cxA = (window.innerWidth * 0.25 / 2) - (10310 * zoomA); cyA = 50 - (9830 * zoomA);
+            zoomAR = 1; cxAR = 20 - 10000; cyAR = 20 - 10000;
+            updateTransformAb(); updateTransformAbRight();
+        };
+
+        window.setTheme = function(t) {
+            if(t === 'sepia') bd.className = '';
+            else if(t === 'dark') bd.className = 'dark';
+            else if(t === 'shader') bd.classList.toggle('shader');
+        };
+
+        window.saveBackup = function() {
+            try {
+                localStorage.setItem('abhidhamma_backup', JSON.stringify({ nodes: abHistory[abCurStep]?.nodes || [], views: { cxA, cyA, zoomA, cxAR, cyAR, zoomAR } }));
+                localStorage.setItem('abPatterns', JSON.stringify(abPatterns));
+            } catch(e) {}
+        };
+
+        window.saveFileHTML = function() {
+            updateTransformAb(); updateTransformAbRight();
+            let a = document.createElement('a');
+            a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent('<!DOCTYPE html>\n' + document.documentElement.cloneNode(true).outerHTML);
+            a.download = 'abhidhamma_' + Date.now() + '.html'; a.click();
+            window.showToast('💾 เซฟไฟล์ HTML เรียบร้อยครับ!');
+        };
+
+        window.copyBookmark = function() {
+            updateTransformAb(); updateTransformAbRight();
+            let dataUri = 'data:text/html;charset=utf-8,' + encodeURIComponent('<!DOCTYPE html>\n' + document.documentElement.cloneNode(true).outerHTML);
+            let ti = document.createElement("textarea"); ti.value = dataUri; document.body.appendChild(ti); ti.select();
+            try { document.execCommand("copy"); window.showToast("🔖 คัดลอกโค้ด Bookmark ลงคลิปบอร์ดแล้วครับ!"); } 
+            catch(err) { window.showAlert("คัดลอกไม่สำเร็จ กรุณาก๊อปปี้โค้ดด้านล่างนี้เอง:<br><br><textarea style='width:100%;height:100px;color:#000;'>" + dataUri + "</textarea>"); }
+            document.body.removeChild(ti);
+        };
+
+        window.exportJSON = function() {
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ nodes: abHistory[abCurStep]?.nodes || [], abPatterns, views: { cxA, cyA, zoomA, cxAR, cyAR, zoomAR } }));
+            let a = document.createElement('a'); a.href = dataStr; a.download = "abhidhamma_data_" + Date.now() + ".json"; a.click();
+            window.showToast('📤 ส่งออกไฟล์ JSON สำเร็จ!');
+        };
+
+        window.importJSON = function(e) {
+            let f = e.target.files[0]; if (!f) return;
+            let r = new FileReader();
+            r.onload = function(evt) {
+                try {
+                    let d = JSON.parse(evt.target.result);
+                    let mig = (d.abhidhamma && d.abhidhamma.nodes) ? d.abhidhamma : (d.nodes ? d : null);
+                    if (d.abPatterns) { abPatterns = d.abPatterns; try { localStorage.setItem('abPatterns', JSON.stringify(abPatterns)); } catch(err) {} updatePatternList(); }
+                    if (mig) { 
+                        abHistory.push(mig); abCurStep = abHistory.length - 1; 
+                        if (d.views) { cxA = d.views.cxA || cxA; cyA = d.views.cyA || cyA; zoomA = d.views.zoomA || zoomA; cxAR = d.views.cxAR || cxAR; cyAR = d.views.cyAR || cyAR; zoomAR = d.views.zoomAR || zoomAR; }
+                        window.loadStateAb(abCurStep); window.saveBackup(); window.showToast("✅ อิมพอร์ตข้อมูลสำเร็จเรียบร้อยครับ!");
+                    } else { window.showToast("⚠️ ไม่พบข้อมูลผังอภิธรรมในไฟล์นี้"); }
+                } catch (err) { window.showAlert("ไฟล์มีปัญหา: " + err.message); }
+            };
+            r.readAsText(f); e.target.value = ""; 
+        };
+
+        window.changeFontSize = function(act) {
+            let s = abNodes.filter(n => n.classList.contains('sel') && n.classList.contains('n-ab-txt'));
+            if(s.length > 0) {
+                s.forEach(n => {
+                    let nt = n.querySelector('.nt');
+                    if(nt) { let cs = parseInt(window.getComputedStyle(nt).fontSize) || 18; nt.style.fontSize = (act === '+' ? cs + 2 : Math.max(8, cs - 2)) + 'px'; }
+                });
+                window.doSaveStateAb();
+            } else window.showToast('⚠️ โปรดเลือกกล่องข้อความเพื่อปรับขนาดตัวอักษร');
+        };
+
+        let cH = '<div class="flex-row" style="margin-bottom:8px;">', r2 = '<div class="flex-row" style="margin-bottom:8px;">', r3 = '<div class="flex-row">';
+        for(let i=1; i<=16; i++) {
+            let k = i<10?i.toString():(i===10?"0":(i===11?"-":(i===12?"=":(i===13?"[":(i===14?"]":(i===15?";":"'"))))));
+            cH += `<button class="c" style="background:var(--c${i})" onmousedown="event.preventDefault()" onclick="setCol('bg',${i})" title="Alt+${k}"></button>`;
+            r2 += `<button class="c" style="color:var(--c${i});background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',${i})">${k}</button>`;
+            r3 += `<button class="c" style="border:3px solid var(--c${i});background:transparent;font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',${i})" title="Alt+Shift+${k}"></button>`;
+        }
+        cH += `<button class="c" onmousedown="event.preventDefault()" onclick="setCol('bg',0)" title="Alt+\\">\\</button></div>`;
+        r2 += `<button class="c" onmousedown="event.preventDefault()" onclick="setCol('fg',0)">\\</button></div>`;
+        r3 += `<button class="c" onmousedown="event.preventDefault()" onclick="setCol('bd',0)" title="Alt+Shift+\\">\\</button></div>`;
+        
+        $('ab-colors').innerHTML = `<div style="display:flex; gap:6px; align-items:stretch;">
+            <div style="display:flex; flex-direction:column; justify-content:space-between;">${cH}${r2}${r3}</div>
+            <button style="border:1px solid rgb(170,170,170); border-radius:4px; background:rgb(255,255,255); color:rgb(0,0,0); width:32px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; margin:0; padding:0; flex-shrink:0; align-self:stretch; min-height:94px; box-sizing:border-box;" onmousedown="event.preventDefault()" onclick="toggleHlMode()" title="สลับโทนสี (ไฮไลต์/กรอบ)">🎨</button>
+        </div>`;
+
+        window.setCol = function(t, i) {
+            let rgb = 'transparent';
+            if(i) { rgb = getComputedStyle(document.body).getPropertyValue('--c'+i).trim(); }
+            
+            let sel = window.getSelection();
+            if((t === 'fg' || t === 'bg') && sel.toString().length > 0) {
+                let an = sel.anchorNode; if(an && an.nodeType === 3) an = an.parentNode;
+                if(an && an.closest('.n-ab-txt')) { document.execCommand(t==='fg'?'foreColor':'backColor', false, rgb); window.doSaveStateAb(); return; }
+            }
+            
+            let s = abNodes.filter(n => n.classList.contains('sel'));
+            if(s.length === 0) return window.showToast('⚠️ โปรดคลุมวงกลม หรือคลิกข้อความที่ต้องการเปลี่ยนสีก่อนครับ');
+            s.forEach(n => {
+                if (n.classList.contains('n-ab-txt')) { 
+                    if(t === 'fg') n.style.color = i === 0 ? '' : rgb; 
+                    if(t === 'bg') n.style.background = i === 0 ? '' : rgb; 
+                    if(t === 'bd') n.style.borderColor = i === 0 ? '' : rgb;
+                } 
+                else { 
+                    if(t === 'bg') n.style.background = i === 0 ? '' : rgb; 
+                    else if(t === 'bd') n.style.borderColor = i === 0 ? '' : rgb; 
+                }
+            });
+            window.doSaveStateAb();
+        };
+
+        window.initAbhi = function(force) {
+            if (force && !confirm('ต้องการสร้างโครงสร้างผัง 121 ดวงใหม่ทับของเดิมหรือไม่?')) return;
+            let stX = 10000, stY = 10000, s = 38, gg = 15; 
+            abNodes.forEach(n => { if(!n.classList.contains('n-ab-txt')) n.remove(); }); 
+            abNodes = abNodes.filter(n => n.classList.contains('n-ab-txt'));
+            function aB(cnt, col, ox, oy, pr) {
+                for(let i=0; i<cnt; i++) {
+                    let n = document.createElement('div'); n.className = 'n-ab'; n.id = `ab_${pr}_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+                    n.style.left = (stX + ox + ((i%col) * s)) + 'px'; n.style.top = (stY + oy + (Math.floor(i/col) * s)) + 'px';
+                    n.onmousedown = function(e) { if(e.shiftKey) n.classList.toggle('sel'); else { if(!n.classList.contains('sel')) clearSel(); n.classList.add('sel'); } e.stopPropagation(); };
+                    bAb.appendChild(n); abNodes.push(n);
+                }
+            }
+            let cX=0, aY=4*s+gg, kmY=aY+3*s+gg, rpY=kmY+6*s+gg, arY=rpY+3*s+gg, lkY=arY+3*s+gg;
+            aB(4,4,cX,0,'c'); aB(4,4,cX,s,'c'); aB(2,2,cX,2*s,'c'); aB(2,2,cX,3*s,'c');
+            aB(7,7,cX,aY,'c'); aB(8,8,cX,aY+s,'c'); aB(3,3,cX,aY+2*s,'c');
+            aB(4,4,cX,kmY,'c'); aB(4,4,cX,kmY+s,'c'); aB(4,4,cX,kmY+2*s,'c'); aB(4,4,cX,kmY+3*s,'c'); aB(4,4,cX,kmY+4*s,'c'); aB(4,4,cX,kmY+5*s,'c'); 
+            aB(5,5,cX,rpY,'c'); aB(5,5,cX,rpY+s,'c'); aB(5,5,cX,rpY+2*s,'c');
+            aB(4,4,cX+4*s,arY,'c'); aB(4,4,cX+4*s,arY+s,'c'); aB(4,4,cX+4*s,arY+2*s,'c');
+            for(let i=0; i<8; i++) aB(5,5,cX,lkY+i*s,'c'); 
+            
+            let ceX=9*s, anY=0, akY=anY+2*s+gg, sbY=akY+5*s+gg, ygX=ceX+5.5*s, ygY=sbY+s; 
+            aB(7,7,ceX,anY,'ce'); aB(6,6,ceX,anY+s,'ce');
+            aB(4,4,ceX,akY,'ce'); aB(3,3,ceX,akY+s,'ce'); aB(4,4,ceX,akY+2*s,'ce'); aB(2,2,ceX,akY+3*s,'ce'); aB(1,1,ceX,akY+4*s,'ce');
+            aB(7,7,ceX,sbY,'ce'); aB(3,3,ceX,sbY+s,'ce'); aB(2,2,ceX,sbY+2*s,'ce'); aB(1,1,ceX,sbY+3*s,'ce'); 
+            for(let i=0; i<6; i++) aB(2,2,ygX,ygY+i*s,'ce');
+            
+            let ruX=ceX, ruY=arY, anpY=ruY+7*s+gg; 
+            aB(4,4,ruX,ruY,'r'); aB(5,5,ruX,ruY+s,'r'); aB(4,4,ruX,ruY+2*s,'r'); aB(2,2,ruX,ruY+3*s,'r'); aB(1,1,ruX,ruY+4*s,'r'); aB(1,1,ruX,ruY+5*s,'r'); aB(1,1,ruX,ruY+6*s,'r');
+            aB(1,1,ruX,anpY,'r'); aB(2,2,ruX,anpY+s,'r'); aB(3,3,ruX,anpY+2*s,'r'); aB(4,4,ruX,anpY+3*s,'r');
+            window.doSaveStateAb(); if(force) { window.resetAbhiView(); window.showToast('✅ สร้างผัง 121 ดวง สำเร็จ!'); }
+        };
+
+        window.delAb = function(id) { let n = $(id); if(!n) return; abNodes = abNodes.filter(x => x.id !== id); n.remove(); window.doSaveStateAb(); }
+
+        window.doSaveStateAb = function() {
+            let st = abNodes.map(n => ({ id: n.id, type: n.classList.contains('n-ab-txt') ? 'txt' : 'c', bg: n.style.background, bd: n.style.borderColor, fg: n.style.color, x: n.style.left, y: n.style.top, fs: n.querySelector('.nt') ? n.querySelector('.nt').style.fontSize : '', txt: n.classList.contains('n-ab-txt') ? n.querySelector('.nt').innerHTML : '' }));
+            if(abCurStep < abHistory.length - 1) abHistory = abHistory.slice(0, abCurStep + 1);
+            abHistory.push({nodes: st}); abCurStep++; window.saveBackup();
+        };
+
+        window.doUndoAb = function() { if(abCurStep > 0) window.loadStateAb(abCurStep - 1); };
+        window.doRedoAb = function() { if(abCurStep < abHistory.length - 1) window.loadStateAb(abCurStep + 1); };
+
+        window.loadStateAb = function(st) {
+            let d = abHistory[st]; if(!d || !d.nodes) return;
+            document.querySelectorAll('.n-ab-txt, .n-ab').forEach(el => el.remove()); abNodes = [];
+            d.nodes.forEach(ns => {
+                let n = document.createElement('div'); n.id = ns.id; n.style.left = ns.x; n.style.top = ns.y;
+                if (ns.type === 'txt') {
+                    n.className = 'n-ab-txt'; if(ns.bg) n.style.background = ns.bg; if(ns.fg) n.style.color = ns.fg; if(ns.bd) n.style.borderColor = ns.bd;
+                    n.innerHTML = `<div class="dx" onclick="delAb('${ns.id}')">x</div><div class="nt" contenteditable="true" oninput="this.dataset.m=1" onblur="if(this.dataset.m){window.doSaveStateAb();this.dataset.m=''}" onmousedown="event.stopPropagation()">${ns.txt}</div>`;
+                    if(ns.fs) n.querySelector('.nt').style.fontSize = ns.fs;
+                    n.onmousedown = function(e) { if(e.shiftKey) n.classList.toggle('sel'); else { if(!n.classList.contains('sel')) clearSel(); n.classList.add('sel'); } dragAb = n; px = e.clientX; py = e.clientY; e.stopPropagation(); };
+                    bAbRight.appendChild(n);
+                } else {
+                    n.className = 'n-ab'; if(ns.bg) n.style.background = ns.bg; if(ns.bd) n.style.borderColor = ns.bd;
+                    n.onmousedown = function(e) { if(e.shiftKey) n.classList.toggle('sel'); else { if(!n.classList.contains('sel')) clearSel(); n.classList.add('sel'); } e.stopPropagation(); };
+                    bAb.appendChild(n);
+                }
+                abNodes.push(n);
+            });
+            if(abNodes.length === 0) window.initAbhi(); abCurStep = st;
+        };
+
+        function updateTransformAb() { bAb.style.transform = `translate(${cxA}px, ${cyA}px) scale(${zoomA})`; bAb.dataset.cx = cxA; bAb.dataset.cy = cyA; bAb.dataset.zoom = zoomA; }
+        function updateTransformAbRight() { bAbRight.style.transform = `translate(${cxAR}px, ${cyAR}px) scale(${zoomAR})`; bAbRight.dataset.cx = cxAR; bAbRight.dataset.cy = cyAR; bAbRight.dataset.zoom = zoomAR; }
+
+        function updatePatternList() {
+            let dl = $('ab-patterns'); dl.innerHTML = '';
+            for(let k in abPatterns) { let o = document.createElement('option'); o.value = k; dl.appendChild(o); }
+        }
+
+        window.savePattern = function() {
+            let nm = $('ab-search').value.trim(); if(!nm) return window.showToast("⚠️ โปรดตั้งชื่อ Pattern ก่อนกดบันทึกครับ");
+            let d = [];
+            abNodes.forEach(n => { if(!n.classList.contains('n-ab-txt') && n.style.background !== 'transparent' && n.style.background !== '') d.push({id: n.id, bg: n.style.background, bd: n.style.borderColor}); });
+            if(d.length === 0) return window.showToast("⚠️ โปรดเทสีวงกลมอย่างน้อย 1 วง ก่อนบันทึกครับ");
+            abPatterns[nm] = d; try { localStorage.setItem('abPatterns', JSON.stringify(abPatterns)); } catch(e) {}
+            updatePatternList(); window.saveBackup(); window.showToast(`✅ บันทึก Pattern <b>'${nm}'</b> เรียบร้อยแล้ว!`);
+        };
+
+        window.loadPattern = function() {
+            let nm = $('ab-search').value.trim(); if(!nm || !abPatterns[nm]) return window.showToast("❌ ไม่พบ Pattern ชื่อนี้ครับ");
+            abNodes.forEach(n => { if(!n.classList.contains('n-ab-txt')) { n.style.background = 'transparent'; n.style.borderColor = ''; } });
+            let sd = abPatterns[nm], pn = abNodes.filter(n => !n.classList.contains('n-ab-txt'));
+            if(sd.length > 0 && pn.length === 121 + 52 + 28) {
+                if(pn.some(n => n.id === sd[0].id)) sd.forEach(d => { let n = $(d.id); if(n) { n.style.background = d.bg; n.style.borderColor = d.bd; } });
+                else pn.forEach(n => n.style.background = 'transparent');
+            }
+            window.doSaveStateAb(); window.showToast(`✅ โหลด Pattern <b>'${nm}'</b> สำเร็จ!`);
+        };
+
+        window.clearPattern = function() { abNodes.forEach(n => { if(!n.classList.contains('n-ab-txt')) { n.style.background = 'transparent'; n.style.borderColor = ''; } }); window.doSaveStateAb(); window.showToast("🗑️ ล้างสีผังอภิธรรมเรียบร้อย"); };
+        function clearSel() { abNodes.forEach(n => n.classList.remove('sel')); }
+
+        function getEventX(e, targetPane) { return targetPane === 'right' ? e.clientX - (window.innerWidth * 0.25) : e.clientX; }
+
+        window.addEventListener('wheel', function(e) {
+            if(e.target.closest('.sys-ui') || e.target.closest('#cropUI') || e.target.closest('#sys-modal')) return;
+            e.preventDefault();
+            if(e.target.closest('#ab-right-pane')) {
+                let xs = ((e.clientX - (window.innerWidth * 0.25)) - cxAR) / zoomAR, ys = (e.clientY - cyAR) / zoomAR;
+                zoomAR = Math.min(Math.max(0.1, zoomAR + e.deltaY * -0.001), 3); cxAR = (e.clientX - (window.innerWidth * 0.25)) - xs * zoomAR; cyAR = e.clientY - ys * zoomAR; updateTransformAbRight();
+            } else {
+                let xs = (e.clientX - cxA) / zoomA, ys = (e.clientY - cyA) / zoomA;
+                zoomA = Math.min(Math.max(0.1, zoomA + e.deltaY * -0.001), 3); cxA = e.clientX - xs * zoomA; cyA = e.clientY - ys * zoomA; updateTransformAb();
+            }
+        }, {passive: false});
+
+        window.addEventListener('mousedown', function(e) {
+            if(e.target.tagName === 'BUTTON' || e.target.closest('.sys-ui') || e.target.closest('#cropUI') || e.target.closest('#sys-modal') || e.target.closest('.mb') || e.target.closest('#float-ui-btn')) return;
+            let rt = e.target.closest('#ab-right-pane'); window.panTarget = rt ? 'right' : 'left'; window.selTarget = rt ? 'right' : 'left';
+            if(e.button === 1 || e.button === 2) { isPan = true; px = e.clientX; py = e.clientY; }
+            else if(e.button === 0 && !e.target.closest('.n-ab') && !e.target.closest('.n-ab-txt')) { 
+                isSel = true; isAddSel = e.shiftKey; if(!isAddSel) clearSel(); preSel = new Set(abNodes.filter(n => n.classList.contains('sel')));
+                if(rt) { sx = ((e.clientX - (window.innerWidth * 0.25)) - cxAR) / zoomAR; sy = (e.clientY - cyAR) / zoomAR; sbAbRight.style.left = sx + 'px'; sbAbRight.style.top = sy + 'px'; sbAbRight.style.width = '0px'; sbAbRight.style.height = '0px'; sbAbRight.style.display = 'block'; } 
+                else { sx = (e.clientX - cxA) / zoomA; sy = (e.clientY - cyA) / zoomA; sbAb.style.left = sx + 'px'; sbAb.style.top = sy + 'px'; sbAb.style.width = '0px'; sbAb.style.height = '0px'; sbAb.style.display = 'block'; }
+                document.body.style.userSelect = 'none';
+            }
+        });
+
+        window.addEventListener('contextmenu', function(e) { if(!e.target.closest('.n-ab') && !e.target.closest('.n-ab-txt')) e.preventDefault(); });
+
+        window.addEventListener('mousemove', function(e) {
+            if(crDrag) { let cb = $('cropBox'); cb.style.left = (crL + e.clientX - crPx) + 'px'; cb.style.top = (crT + e.clientY - crPy) + 'px'; return; }
+            if(crResize) { let cb = $('cropBox'); let nw = Math.max(50, crW + e.clientX - crPx); let nh = Math.max(50, crH + e.clientY - crPy); if(currentCropRatio) nh = nw / currentCropRatio; cb.style.width = nw + 'px'; cb.style.height = nh + 'px'; return; }
+            
+            if(dragAb) {
+                isMovedAb = true; let s = abNodes.filter(x => x.classList.contains('sel') && x.classList.contains('n-ab-txt')), z = dragAb.classList.contains('n-ab-txt') ? zoomAR : zoomA, dx = (e.clientX - px) / z, dy = (e.clientY - py) / z; 
+                s.forEach(n => { n.style.left = (parseFloat(n.style.left) || 0) + dx + 'px'; n.style.top = (parseFloat(n.style.top) || 0) + dy + 'px'; }); px = e.clientX; py = e.clientY;
+            } else if(isPan) { 
+                if(window.panTarget === 'right') { cxAR += e.clientX - px; cyAR += e.clientY - py; updateTransformAbRight(); } else { cxA += e.clientX - px; cyA += e.clientY - py; updateTransformAb(); } px = e.clientX; py = e.clientY;
+            } else if(isSel) { 
+                if(window.selTarget === 'right') {
+                    let nx = ((e.clientX - (window.innerWidth * 0.25)) - cxAR) / zoomAR, ny = (e.clientY - cyAR) / zoomAR, rx = Math.min(sx, nx), ry = Math.min(sy, ny), rw = Math.abs(nx - sx), rh = Math.abs(ny - sy); 
+                    sbAbRight.style.left = rx + 'px'; sbAbRight.style.top = ry + 'px'; sbAbRight.style.width = rw + 'px'; sbAbRight.style.height = rh + 'px'; 
+                    abNodes.forEach(n => { if(n.classList.contains('n-ab-txt')) { let nl = parseFloat(n.style.left), nt = parseFloat(n.style.top), nw = n.offsetWidth || 80, nh = n.offsetHeight || 40; if((nl < rx + rw && nl + nw > rx && nt < ry + rh && nt + nh > ry) || (isAddSel && preSel.has(n))) n.classList.add('sel'); else n.classList.remove('sel'); } });
+                } else {
+                    let nx = (e.clientX - cxA) / zoomA, ny = (e.clientY - cyA) / zoomA, rx = Math.min(sx, nx), ry = Math.min(sy, ny), rw = Math.abs(nx - sx), rh = Math.abs(ny - sy); 
+                    sbAb.style.left = rx + 'px'; sbAb.style.top = ry + 'px'; sbAb.style.width = rw + 'px'; sbAb.style.height = rh + 'px'; 
+                    abNodes.forEach(n => { if(!n.classList.contains('n-ab-txt')) { let nl = parseFloat(n.style.left), nt = parseFloat(n.style.top); if((nl < rx + rw && nl + 34 > rx && nt < ry + rh && nt + 34 > ry) || (isAddSel && preSel.has(n))) n.classList.add('sel'); else n.classList.remove('sel'); } });
+                }
+            }
+        });
+
+        window.addEventListener('mouseup', function() { document.body.style.userSelect = ''; if(crDrag) crDrag = false; if(crResize) crResize = false; if(dragAb) { dragAb = null; if(isMovedAb) { window.doSaveStateAb(); isMovedAb = false; } } isPan = false; isSel = false; sbAb.style.display = 'none'; sbAbRight.style.display = 'none'; });
+
+        window.addEventListener('dblclick', function(e) {
+            if(e.target.tagName === 'BUTTON' || e.target.closest('.sys-ui') || e.target.closest('#cropUI') || e.target.closest('#sys-modal') || e.target.closest('.mb') || e.target.closest('#about-btn') || e.target.closest('.n-ab') || e.target.closest('.n-ab-txt')) return;
+            if(e.target.closest('#ab-right-pane')) {
+                let id = `ab_txt_${Date.now()}`, n = document.createElement('div'); n.className = 'n-ab-txt'; n.id = id; n.style.left = (((e.clientX - (window.innerWidth * 0.25)) - cxAR) / zoomAR) + 'px'; n.style.top = ((e.clientY - cyAR) / zoomAR) + 'px';
+                n.innerHTML = `<div class="dx" onclick="delAb('${id}')" title="ลบข้อความ">x</div><div class="nt" contenteditable="true" oninput="this.dataset.m=1" onblur="if(this.dataset.m){window.doSaveStateAb();this.dataset.m=''}" onmousedown="event.stopPropagation()">พิมพ์ที่นี่...</div>`;
+                n.onmousedown = function(me) { if(me.shiftKey) n.classList.toggle('sel'); else { if(!n.classList.contains('sel')) clearSel(); n.classList.add('sel'); } dragAb = n; px = me.clientX; py = me.clientY; me.stopPropagation(); };
+                bAbRight.appendChild(n); abNodes.push(n); window.doSaveStateAb();
+            }
+        });
+
+        window.setCropRatio = function(r, e) { e.stopPropagation(); currentCropRatio = r; let cb = $('cropBox'); if (r) { let w = parseFloat(cb.style.width || window.innerWidth * 0.8); if (w > 0) cb.style.height = (w / r) + 'px'; } };
+        window.setCustomCropRatio = function(e) { e.stopPropagation(); window.showPrompt('กำหนดสัดส่วน (เช่น 16:9):', '', function(val) { if(!val) return; let r, p = val.toLowerCase().replace(/\s/g, '').split(/[:x]/); if(p.length===2) r = parseFloat(p[0])/parseFloat(p[1]); if(r && !isNaN(r)) window.setCropRatio(r, {stopPropagation:function(){}}); else window.showAlert('สัดส่วนไม่ถูกต้อง'); }); };
+        window.cropMD = function(e) { e.stopPropagation(); crDrag = true; crPx = e.clientX; crPy = e.clientY; crL = parseFloat($('cropBox').style.left || 0); crT = parseFloat($('cropBox').style.top || 0); };
+        window.cropRMD = function(e) { e.stopPropagation(); crResize = true; crPx = e.clientX; crPy = e.clientY; crW = parseFloat($('cropBox').style.width || 0); crH = parseFloat($('cropBox').style.height || 0); };
+
+        let pngTimer = null;
+        window.doExportClick = function() {
+            if(pngTimer) clearTimeout(pngTimer);
+            pngTimer = setTimeout(function() {
+                pngTimer = null; window.setCropRatio(null, {stopPropagation: function(){}}); $('cropUI').style.display = 'block'; $('ab-ui').style.display = 'none'; $('float-ui-btn').style.display = 'none'; $('about-btn').style.display = 'none';
+                let cb = $('cropBox'); cb.style.left = (window.innerWidth * 0.1) + 'px'; cb.style.top = (window.innerHeight * 0.1) + 'px'; cb.style.width = (window.innerWidth * 0.8) + 'px'; cb.style.height = (window.innerHeight * 0.8) + 'px';
+            }, 250);
+        };
+        
+        window.doExportDblClick = function() {
+            if(pngTimer) { clearTimeout(pngTimer); pngTimer = null; }
+            $('ab-ui').style.display = 'none'; $('float-ui-btn').style.display = 'none'; $('about-btn').style.display = 'none'; clearSel();
+            html2canvas(document.body, { backgroundColor: window.getComputedStyle(document.body).backgroundColor, width: window.innerWidth, height: window.innerHeight }).then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'abhidhamma_full_' + Date.now() + '.png'; a.click(); $('ab-ui').style.display = uiHidden?'none':'flex'; $('float-ui-btn').style.display = uiHidden?'flex':'none'; $('about-btn').style.display = 'flex'; });
+        };
+        
+        window.confirmCrop = function(e) { e.stopPropagation(); $('cropUI').style.display = 'none'; clearSel(); let r = $('cropBox').getBoundingClientRect(); html2canvas(document.body, { x: r.left, y: r.top, width: r.width, height: r.height, backgroundColor: window.getComputedStyle(document.body).backgroundColor }).then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'abhidhamma_crop_' + Date.now() + '.png'; a.click(); $('ab-ui').style.display = uiHidden?'none':'flex'; $('float-ui-btn').style.display = uiHidden?'flex':'none'; $('about-btn').style.display = 'flex'; }); };
+        window.cancelCrop = function(e) { e.stopPropagation(); $('cropUI').style.display = 'none'; $('ab-ui').style.display = uiHidden?'none':'flex'; $('float-ui-btn').style.display = uiHidden?'flex':'none'; $('about-btn').style.display = 'flex'; };
+
+        window.addEventListener('keydown', function(e) {
+            if(e.key === 'Tab') {
+                let a = document.activeElement;
+                if(a && a.classList.contains('nt')) { e.preventDefault(); if(!e.shiftKey) { let nd = a.nextElementSibling; if(nd && nd.classList.contains('nd')) nd.focus(); } return; } 
+                else if(a && a.classList.contains('nd')) { e.preventDefault(); if(e.shiftKey) { let nt = a.previousElementSibling; if(nt && nt.classList.contains('nt')) nt.focus(); } return; } 
+            }
+            if(e.altKey || (e.getModifierState && e.getModifierState('AltGraph'))) {
+                let c = e.code;
+                if(c === 'KeyS') { e.preventDefault(); window.saveFileHTML(); }
+                if(c === 'KeyM') { e.preventDefault(); bd.classList.toggle('shader'); }
+                if(c === 'KeyB') { e.preventDefault(); window.copyBookmark(); }
+                if(c === 'KeyZ') { e.preventDefault(); window.doUndoAb(); }
+                if(c === 'KeyY') { e.preventDefault(); window.doRedoAb(); }
+                let i = ['Digit1','Digit2','Digit3','Digit4','Digit5','Digit6','Digit7','Digit8','Digit9','Digit0','Minus','Equal','BracketLeft','BracketRight','Semicolon','Quote','Backslash'].indexOf(c);
+                if(i > -1) { 
+                    e.preventDefault(); 
+                    if(e.shiftKey) window.setCol('bd', i === 16 ? 0 : (i + 1)); 
+                    else window.setCol('bg', i === 16 ? 0 : (i + 1)); 
+                }
+            }
+        });
+
+        window.onbeforeunload = function(e) { if(abCurStep > 0) { e.preventDefault(); e.returnValue = ''; } };
+
+        function init() {
+            if(document.querySelectorAll('.n-ab').length > 0 || document.querySelectorAll('.n-ab-txt').length > 0) {
+                document.querySelectorAll('.n-ab, .n-ab-txt').forEach(n => { 
+                    abNodes.push(n); 
+                    n.onmousedown = function(e) { if(e.shiftKey) n.classList.toggle('sel'); else { if(!n.classList.contains('sel')) clearSel(); n.classList.add('sel'); } if(n.classList.contains('n-ab-txt')) dragAb = n; px = e.clientX; py = e.clientY; e.stopPropagation(); };
+                });
+                if(bAb.dataset.cx) { cxA = parseFloat(bAb.dataset.cx); cyA = parseFloat(bAb.dataset.cy); zoomA = parseFloat(bAb.dataset.zoom); updateTransformAb(); } else window.resetAbhiView();
+                if(bAbRight.dataset.cx) { cxAR = parseFloat(bAbRight.dataset.cx); cyAR = parseFloat(bAbRight.dataset.cy); zoomAR = parseFloat(bAbRight.dataset.zoom); updateTransformAbRight(); }
+                window.doSaveStateAb();
+            } else {
+                let ld = false, fr = false;
+                try {
+                    let bk = localStorage.getItem('abhidhamma_backup') || (localStorage.getItem('ab_workspace_backup') ? JSON.stringify(JSON.parse(localStorage.getItem('ab_workspace_backup')).abhidhamma) : null);
+                    if(bk) {
+                        let d = JSON.parse(bk);
+                        if(d && d.nodes && d.nodes.length > 0) { 
+                            abHistory.push(d); abCurStep = 0; 
+                            if(d.views) { cxA = d.views.cxA || cxA; cyA = d.views.cyA || cyA; zoomA = d.views.zoomA || zoomA; cxAR = d.views.cxAR || cxAR; cyAR = d.views.cyAR || cyAR; zoomAR = d.views.zoomAR || zoomAR; }
+                            window.loadStateAb(abCurStep); ld = true; 
+                            if (cxA > 0 || cxA < -8000 || isNaN(cxA)) fr = true;
+                        }
+                    }
+                } catch(e) {}
+                if(!ld || fr) { 
+                    window.resetAbhiView(); 
+                    if(!ld) { 
+                        window.initAbhi(); 
+                        let id = `ab_txt_${Date.now()}`, n = document.createElement('div'); n.className = 'n-ab-txt'; n.id = id; n.style.left = '10000px'; n.style.top = '10000px';
+                        n.innerHTML = `<div class="dx" onclick="delAb('${id}')" title="ลบข้อความ">x</div><div class="nt" contenteditable="true" oninput="this.dataset.m=1" onblur="if(this.dataset.m){window.doSaveStateAb();this.dataset.m=''}" onmousedown="event.stopPropagation()">พิมพ์ที่นี่...</div>`;
+                        n.onmousedown = function(me) { if(me.shiftKey) n.classList.toggle('sel'); else { if(!n.classList.contains('sel')) clearSel(); n.classList.add('sel'); } dragAb = n; px = me.clientX; py = me.clientY; me.stopPropagation(); };
+                        bAbRight.appendChild(n); abNodes.push(n); window.doSaveStateAb();
+                    } 
+                }
+            }
+            updatePatternList();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => { try { init(); } catch(err) { console.error(err); } });
+    </script>
+
+  <script src="../assets/shared.js"></script>
+</body></html>

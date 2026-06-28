@@ -1,0 +1,14 @@
+# Tooling / editor
+node_modules/
+.DS_Store
+Thumbs.db
+.agents/
+.claude/
+
+# Source bookmarks + decoded HTML contain embedded Firebase apiKey + JWT
+# from Google AI Studio. Keep them LOCAL — never push to a public repo.
+*.txt
+decoded/
+
+# Skill lockfile (local)
+skills-lock.json

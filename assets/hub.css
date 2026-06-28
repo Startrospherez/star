@@ -1,0 +1,101 @@
+/* hub.css — minimal iLovePDF-style landing page */
+:root {
+  --bg: #f6f7fb;
+  --fg: #2b2f38;
+  --muted: #6b7280;
+  --card: #ffffff;
+  --border: #e6e8ee;
+  --accent: #5b8def;
+  --shadow: 0 1px 3px rgba(20, 24, 40, 0.06), 0 8px 24px rgba(20, 24, 40, 0.06);
+}
+body.dark {
+  --bg: #15171c;
+  --fg: #e6e8ee;
+  --muted: #9aa1ad;
+  --card: #1e2128;
+  --border: #2a2e37;
+  --accent: #6f9bf2;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, "Sarabun", "Noto Sans Thai", sans-serif;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px 24px;
+}
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+.brand .dot { color: var(--accent); }
+.theme-toggle {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--fg);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); }
+
+.hero {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 24px 8px;
+  text-align: center;
+}
+.hero h1 { font-size: 32px; margin: 0 0 6px; letter-spacing: -0.02em; }
+.hero p { color: var(--muted); margin: 0; }
+
+.grid {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 28px 24px 64px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 18px;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+.card:hover { transform: translateY(-3px); border-color: var(--accent); }
+.card .icon { font-size: 30px; }
+.card .name { font-weight: 700; font-size: 17px; }
+.card .desc { color: var(--muted); font-size: 14px; }
+
+footer {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px 40px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}

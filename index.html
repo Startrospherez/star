@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Tools Hub</title>
+  <link rel="stylesheet" href="assets/hub.css">
+  <script>
+    // Apply saved theme before paint to avoid a flash.
+    try {
+      if (localStorage.getItem("hub_theme") === "dark") {
+        document.documentElement.setAttribute("data-pretheme", "dark");
+      }
+    } catch (e) {}
+  </script>
+  <style>
+    html[data-pretheme="dark"] body { background: #15171c; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="dot">★</span> star <span style="color:var(--muted);font-weight:500;">study tools</span></div>
+    <button class="theme-toggle" id="themeToggle" type="button">🌙 Dark</button>
+  </header>
+
+  <section class="hero">
+    <h1>เครื่องมือการเรียน</h1>
+    <p>เลือกเครื่องมือที่ต้องการ แล้วเริ่มใช้งานได้เลย</p>
+  </section>
+
+  <main class="grid">
+    <a class="card" href="tools/scratchpad.html">
+      <div class="icon">📝</div>
+      <div class="name">ScratchPad</div>
+      <div class="desc">กระดาษทดชั่วคราว ขีดเขียน ลงสี เซฟได้</div>
+    </a>
+    <a class="card" href="tools/mindmap.html">
+      <div class="icon">🧠</div>
+      <div class="name">MindMap</div>
+      <div class="desc">สร้างแผนผังความคิด เชื่อมโยงหัวข้อ</div>
+    </a>
+    <a class="card" href="tools/abhidhamma.html">
+      <div class="icon">🪷</div>
+      <div class="name">ผังอภิธรรม</div>
+      <div class="desc">ลงสีผังอภิธรรม จัดกลุ่ม ส่งออกรูป</div>
+    </a>
+  </main>
+
+  <footer>
+    บันทึกอัตโนมัติในเครื่องนี้ · กดปุ่ม Save ในแต่ละเครื่องมือเพื่อเก็บไฟล์ไว้พกข้ามเครื่อง
+  </footer>
+
+  <script>
+    (function () {
+      var btn = document.getElementById("themeToggle");
+      function render() {
+        var dark = document.body.classList.contains("dark");
+        btn.textContent = dark ? "☀️ Light" : "🌙 Dark";
+      }
+      // init from saved theme
+      try {
+        if (localStorage.getItem("hub_theme") === "dark") document.body.classList.add("dark");
+      } catch (e) {}
+      document.documentElement.removeAttribute("data-pretheme");
+      render();
+      btn.addEventListener("click", function () {
+        document.body.classList.toggle("dark");
+        try {
+          localStorage.setItem("hub_theme", document.body.classList.contains("dark") ? "dark" : "light");
+        } catch (e) {}
+        render();
+      });
+    })();
+  </script>
+</body>
+</html>

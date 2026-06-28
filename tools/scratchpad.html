@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScratchPad V.3.71</title>
+    <style>
+        :root {
+            --bg: rgb(244,238,224); --fg: rgb(60,60,60); --tb: rgb(228,220,204); --bc: rgb(200,190,175);
+            --c1: rgb(255,153,153); --c2: rgb(255,191,128); --c3: rgb(255,230,128); --c4: rgb(255,242,128);
+            --c5: rgb(255,255,128); --c6: rgb(217,255,128); --c7: rgb(153,255,153); --c8: rgb(128,255,204);
+            --c9: rgb(128,204,255); --c10: rgb(191,128,255); --c11: rgb(255,128,255); --c12: rgb(255,128,191);
+            --c13: rgb(210,180,140); --c14: rgb(192,192,192); --c15: rgb(60,60,60); --c16: rgb(220,220,220);
+        }
+        .dark {
+            --bg: rgb(30,30,30); --fg: rgb(220,220,220); --tb: rgb(50,50,50); --bc: rgb(70,70,70);
+            --c1: rgb(128,0,0); --c2: rgb(153,51,0); --c3: rgb(153,102,0); --c4: rgb(128,128,0);
+            --c5: rgb(102,102,0); --c6: rgb(77,128,0); --c7: rgb(0,102,0); --c8: rgb(0,102,102);
+            --c9: rgb(0,51,153); --c10: rgb(51,0,153); --c11: rgb(102,0,102); --c12: rgb(128,0,64);
+            --c13: rgb(102,64,32); --c14: rgb(85,85,85); --c15: rgb(60,60,60); --c16: rgb(220,220,220);
+        }
+        .shader::after { content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgb(220,204,177); mix-blend-mode: multiply; pointer-events: none; z-index: 99999; }
+        
+        body { margin: 0; background: var(--bg); color: var(--fg); font-family: sans-serif; transition: background 0.3s, color 0.3s; overflow-x: hidden; }
+        button { cursor: pointer; padding: 4px 8px; border: 1px solid rgb(170,170,170); border-radius: 4px; background: rgb(255,255,255); color: rgb(0,0,0); transition: all 0.2s; white-space: nowrap; }
+        button:hover { background: rgb(238,238,238); }
+        .c { width: 24px; height: 24px; border-radius: 50%; padding: 0; border: 2px solid rgba(0,0,0,0.2); box-sizing: border-box; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: bold; color: rgba(0,0,0,0.6); }
+        .c:hover { transform: scale(1.2); box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        
+        #sp-t .c[style*="background:var"] { color: #fff !important; text-shadow: 0px 1px 3px rgba(0,0,0,0.9); font-size: 13px; }
+        
+        /* Highlight Color Styles */
+        [style*="background-color: rgb(255, 1, 1)"], [style*="background-color: rgb(255,1,1)"] { background: var(--c1)!important; color: var(--fg)!important; }
+        [style*="background-color: rgb(255, 2, 1)"], [style*="background-color: rgb(255,2,1)"] { background: var(--c2)!important; color: var(--fg)!important; }
+        [style*="background-color: rgb(255, 3, 1)"], [style*="background-color: rgb(255,3,1)"] { background: var(--c3)!important; color: var(--fg)!important; }
+        [style*="background-color: rgb(255, 4, 1)"], [style*="background-color: rgb(255,4,1)"] { background: var(--c4)!important; color: var(--fg)!important; }
+        [style*="background-color: rgb(255, 5, 1)"], [style*="background-color: rgb(255,5,1)"] { background: var(--c5)!important; color: var(--fg)!important; }
+        [style*="background-color: rgb(255, 6, 1)"], [style*="background-color: rgb(255,6,1)"] { background: var(--c6)!important; color: var(--fg)!important; }
+        [style*="background-color: rgb(255, 7, 1)"], [style*="background-color: rgb(255,7,1)"] { background: var(--c7)!important; color: var(--fg)!important; }
+        [style*="background-color: rgb(255, 8, 1)"], [style*="background-color: rgb(255,8,1)"] { background: var(--c8)!important; color: var(--fg)!important; }
+        [style*="background-color: rgb(255, 9, 1)"], [style*="background-color: rgb(255,9,1)"] { background: var(--c9)!important; color: var(--fg)!important; }
+        [style*="background-color: rgb(255, 10, 1)"], [style*="background-color: rgb(255,10,1)"] { background: var(--c10)!important; color: var(--fg)!important; }
+        [style*="background-color: rgb(255, 11, 1)"], [style*="background-color: rgb(255,11,1)"] { background: var(--c11)!important; color: var(--fg)!important; }
+        [style*="background-color: rgb(255, 12, 1)"], [style*="background-color: rgb(255,12,1)"] { background: var(--c12)!important; color: var(--fg)!important; }
+        [style*="background-color: rgb(255, 13, 1)"], [style*="background-color: rgb(255,13,1)"] { background: var(--c13)!important; color: var(--fg)!important; }
+        [style*="background-color: rgb(255, 14, 1)"], [style*="background-color: rgb(255,14,1)"] { background: var(--c14)!important; color: var(--fg)!important; }
+        [style*="background-color: rgb(60, 60, 60)"], [style*="background-color: rgb(60,60,60)"] { background: var(--c15)!important; color: rgb(240,240,240)!important; }
+        [style*="background-color: rgb(220, 220, 220)"], [style*="background-color: rgb(220,220,220)"] { background: var(--c16)!important; color: rgb(30,30,30)!important; }
+
+        ruby { ruby-align: center; } rt { font-size: 0.55em; color: rgb(136,136,136); }
+        
+        #sp-t { position: fixed; top: 0; left: 0; width: 100vw; background: var(--tb); padding: 8px 10px; border-bottom: 1px solid var(--bc); display: flex; gap: 8px; z-index: 999; align-items: center; box-sizing: border-box; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; }
+        #sp-t::-webkit-scrollbar { height: 6px; }
+        #sp-t::-webkit-scrollbar-thumb { background: rgb(170,170,170); border-radius: 3px; }
+        
+        #cnt { position: fixed; bottom: 15px; right: 25px; font-size: 14px; font-weight: bold; background: rgb(228,220,204); padding: 6px 12px; border-radius: 20px; border: 1px solid rgb(200,190,175); box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 999; pointer-events: none; color: rgb(60,60,60); }
+        #ed { white-space: pre-wrap; tab-size: 4em; padding: 80px 32px 32px; font-size: 24px; outline: none; min-height: 100vh; box-sizing: border-box; }
+        
+        #float-ui-btn { position: fixed; top: 10px; left: 10px; z-index: 10000; display: none; background: var(--bg); color: var(--fg); border: 1px solid rgb(170,170,170); width: 30px; height: 26px; border-radius: 4px; cursor: pointer; font-size: 14px; align-items: center; justify-content: center; box-shadow: none; }
+        #float-ui-btn:hover { background: rgb(238,238,238); }
+    </style>
+</head>
+<body id="bd">
+    <!-- Modals & Crop UI -->
+    <div id="sys-modal" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);z-index:9999999;display:none;justify-content:center;align-items:center;">
+        <div style="background:var(--tb);padding:20px;border-radius:8px;max-width:400px;width:90%;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);color:var(--fg);border:1px solid var(--bc);">
+            <div id="sys-modal-msg" style="margin-bottom:15px;word-break:break-word;font-size:16px;opacity:0.85;"></div>
+            <input type="text" id="sys-modal-inp" style="display:none;width:100%;margin-bottom:15px;padding:8px;box-sizing:border-box;border-radius:4px;border:1px solid var(--bc);background:var(--bg);color:var(--fg);">
+            <div style="display:flex;justify-content:center;gap:10px;">
+                <button onclick="window.sysModalOk()" style="background:rgb(33,150,243);color:rgb(255,255,255);border:none;padding:6px 15px;border-radius:4px;font-weight:bold;">ตกลง</button>
+                <button id="sys-modal-cancel" onclick="window.sysModalCancel()" style="display:none;background:rgb(244,67,54);color:rgb(255,255,255);border:none;padding:6px 15px;border-radius:4px;font-weight:bold;">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="qro" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);z-index:100000;display:none;justify-content:center;align-items:center;flex-direction:column;cursor:pointer" onclick="this.style.display='none'">
+        <img id="qri" style="background:rgb(255,255,255);padding:20px;border-radius:10px;max-width:80vw;max-height:80vh;display:none">
+        <div id="qrm" style="background:var(--tb);color:var(--fg);border:1px solid var(--bc);padding:8px 20px;border-radius:20px;margin-top:20px;font-size:16px;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.2);"></div>
+    </div>
+
+    <div id="cropUI" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:99999;display:none;pointer-events:none;">
+        <div id="cropBox" style="position:absolute;border:2px dashed rgb(255,255,255);outline:9999px solid rgba(0,0,0,0.5);background:transparent !important;pointer-events:auto;cursor:move;" onmousedown="window.cropMD(event)">
+            <div class="cr-br" style="position:absolute;bottom:-5px;right:-5px;width:15px;height:15px;background:rgb(33,150,243);cursor:nwse-resize;" onmousedown="window.cropRMD(event)"></div>
+            <div style="position:absolute;top:-5px;left:0;transform:translateY(-100%);display:flex;gap:5px;width:max-content;max-width:90vw;flex-wrap:wrap;">
+                <button onclick="window.setCropRatio(null, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">Free</button>
+                <button onclick="window.setCropRatio(1, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">1:1</button>
+                <button onclick="window.setCropRatio(4/3, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">4:3</button>
+                <button onclick="window.setCropRatio(16/9, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">16:9</button>
+                <button onclick="window.setCropRatio(9/16, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">9:16</button>
+                <button onclick="window.setCropRatio(1.185, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">1.185:1 (PPT)</button>
+                <button onclick="window.setCustomCropRatio(event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">Custom</button>
+            </div>
+            <div style="position:absolute;bottom:-5px;right:0;transform:translateY(100%);display:flex;gap:5px;">
+                <button onclick="window.confirmCrop(event)" style="background:rgb(33,150,243);color:rgb(255,255,255);border:none;padding:5px 10px;border-radius:4px;cursor:pointer;">✅ ยืนยันถ่าย</button>
+                <button onclick="window.cancelCrop(event)" style="background:rgb(244,67,54);color:rgb(255,255,255);border:none;padding:5px 10px;border-radius:4px;cursor:pointer;">❌ ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Float Toggle UI Button -->
+    <div id="float-ui-btn" onclick="window.toggleUI()" title="แสดงแถบเครื่องมือ">🛠️</div>
+
+    <!-- Toolbar: Scratchpad -->
+    <div id="sp-t" contenteditable="false">
+        <button class="c" style="width:28px; height:28px; font-size:14px; border-radius:6px; background:var(--bg); text-shadow:none !important;" onclick="window.toggleUI()" title="ซ่อนแถบเครื่องมือ">🛠️</button>
+        <span style="border-left:1px solid rgb(170,170,170);height:20px;margin:0 2px"></span>
+        
+        <button class="c" style="background:var(--c1);" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(255,1,1)')" title="Red (Alt+1)">1</button>
+        <button class="c" style="background:var(--c2);" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(255,2,1)')" title="Red-Orange (Alt+2)">2</button>
+        <button class="c" style="background:var(--c3);" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(255,3,1)')" title="Orange (Alt+3)">3</button>
+        <button class="c" style="background:var(--c4);" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(255,4,1)')" title="Yellow-Orange (Alt+4)">4</button>
+        <button class="c" style="background:var(--c5);" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(255,5,1)')" title="Yellow (Alt+5)">5</button>
+        <button class="c" style="background:var(--c6);" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(255,6,1)')" title="Yellow-Green (Alt+6)">6</button>
+        <button class="c" style="background:var(--c7);" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(255,7,1)')" title="Green (Alt+7)">7</button>
+        <button class="c" style="background:var(--c8);" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(255,8,1)')" title="Blue-Green (Alt+8)">8</button>
+        <button class="c" style="background:var(--c9);" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(255,9,1)')" title="Blue (Alt+9)">9</button>
+        <button class="c" style="background:var(--c10);" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(255,10,1)')" title="Blue-Violet (Alt+0)">0</button>
+        <button class="c" style="background:var(--c11);" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(255,11,1)')" title="Violet (Alt+-)">-</button>
+        <button class="c" style="background:var(--c12);" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(255,12,1)')" title="Red-Violet (Alt+=)">=</button>
+        <span style="border-left:1px solid rgb(170,170,170);height:20px;margin:0 2px"></span>
+        <button class="c" style="background:var(--c13);" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(255,13,1)')" title="Brown (Alt+[)">[</button>
+        <button class="c" style="background:var(--c14);" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(255,14,1)')" title="Gray (Alt+])">]</button>
+        <button class="c" style="background:var(--c15); border:2px solid rgb(100,100,100); color:rgba(255,255,255,0.8) !important;" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(60,60,60)')" title="Black (Alt+;)">;</button>
+        <button class="c" style="background:var(--c16); border:2px solid rgb(170,170,170); color:rgba(0,0,0,0.6) !important; text-shadow:none !important;" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'rgb(220,220,220)')" title="White (Alt+')">'</button>
+        <button class="c" onmousedown="event.preventDefault()" onclick="document.execCommand('backColor',false,'transparent')" title="Clear (Alt+\)">\</button>
+        <span style="border-left:1px solid rgb(170,170,170);height:20px;margin:0 2px"></span>
+        
+        <button onclick="window.setTheme('sepia')">Sepia</button>
+        <button onclick="window.setTheme('dark')">Dark</button>
+        <button onclick="window.setTheme('shader')" title="Screen Shader (Alt+M)">🕶️ Shader</button>
+        <span style="border-left:1px solid rgb(170,170,170);height:20px;margin:0 2px"></span>
+        
+        <button onclick="window.fAll()" title="Alt+F">🔍 Highlight</button>
+        <button onclick="window.rAll()" title="Alt+P">🔄 Replace</button>
+        <span style="border-left:1px solid rgb(170,170,170);height:20px;margin:0 2px"></span>
+        
+        <button onclick="document.getElementById('importInput').click()" title="นำเข้าข้อมูล JSON">📥 Import</button>
+        <button onclick="window.exportJSON()" title="ส่งออกข้อมูล JSON">📤 Export</button>
+        <button onclick="window.doExportClick()" ondblclick="window.doExportDblClick()" title="คลิกเพื่อครอปกรอบ | ดับเบิลคลิกเพื่อแคปทั้งจอ">📸 PNG</button>
+        <button onclick="window.saveFileHTML()" title="Alt+S">💾 HTML</button>
+    </div>
+    
+    <div id="cnt">0 คำ | 0 อักษร</div>
+    <div id="ed" contenteditable="true"></div>
+
+    <!-- File Input for JSON Import -->
+    <input type="file" id="importInput" style="display:none" accept=".json" onchange="window.importJSON(event)">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
+    <script>
+        const ed = document.getElementById('ed'), cnt = document.getElementById('cnt'),
+              bd = document.getElementById('bd'), qro = document.getElementById('qro'), 
+              qri = document.getElementById('qri'), qrm = document.getElementById('qrm');
+        
+        let uiHidden = false;
+        let crDrag = false, crResize = false, crPx, crPy, crW, crH, crL, crT;
+        let modalCallback = null;
+        let currentCropRatio = null;
+
+        window.toggleUI = function() {
+            uiHidden = !uiHidden;
+            if(uiHidden) {
+                document.getElementById('sp-t').style.display = 'none';
+                document.getElementById('float-ui-btn').style.display = 'flex';
+            } else {
+                document.getElementById('float-ui-btn').style.display = 'none';
+                document.getElementById('sp-t').style.display = 'flex';
+            }
+        };
+
+        window.showToast = function(msg) {
+            let t = document.getElementById('sys-toast');
+            if(!t) {
+                t = document.createElement('div'); t.id = 'sys-toast';
+                t.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); color:#fff; padding:12px 24px; border-radius:30px; z-index:9999999; font-size:15px; opacity:0; transition:opacity 0.3s; pointer-events:none; box-shadow:0 4px 10px rgba(0,0,0,0.3); text-align:center; border: 1px solid rgba(255,255,255,0.1);';
+                document.body.appendChild(t);
+            }
+            t.innerHTML = msg; t.style.opacity = '1';
+            if(t.tm) clearTimeout(t.tm);
+            t.tm = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+        };
+
+        window.showAlert = function(msg) {
+            document.getElementById('sys-modal-msg').innerHTML = msg;
+            document.getElementById('sys-modal-inp').style.display = 'none';
+            document.getElementById('sys-modal-cancel').style.display = 'none';
+            document.getElementById('sys-modal').style.display = 'flex';
+            modalCallback = null;
+        };
+
+        window.showPrompt = function(msg, def, cb) {
+            document.getElementById('sys-modal-msg').innerHTML = msg;
+            let inp = document.getElementById('sys-modal-inp');
+            inp.style.display = 'block'; inp.value = def || '';
+            document.getElementById('sys-modal-cancel').style.display = 'inline-block';
+            document.getElementById('sys-modal').style.display = 'flex';
+            modalCallback = cb; inp.focus();
+        };
+
+        window.sysModalOk = function() { document.getElementById('sys-modal').style.display = 'none'; if (modalCallback) modalCallback(document.getElementById('sys-modal-inp').value); };
+        window.sysModalCancel = function() { document.getElementById('sys-modal').style.display = 'none'; if (modalCallback) modalCallback(null); };
+        document.getElementById('sys-modal-inp').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); window.sysModalOk(); } });
+
+        window.setTheme = function(t) {
+            if(t === 'sepia') bd.className = '';
+            else if(t === 'dark') bd.className = 'dark';
+            else if(t === 'shader') bd.classList.toggle('shader');
+        };
+
+        window.saveBackup = function() {
+            try {
+                let data = { scratchpad: ed.innerHTML };
+                // Using general workspace key for backwards compatibility
+                let oldBackup = localStorage.getItem('sp_workspace_backup');
+                if (oldBackup) {
+                    try {
+                        let parsed = JSON.parse(oldBackup);
+                        parsed.scratchpad = ed.innerHTML;
+                        localStorage.setItem('sp_workspace_backup', JSON.stringify(parsed));
+                        return;
+                    } catch(e) {}
+                }
+                localStorage.setItem('sp_workspace_backup', JSON.stringify(data));
+            } catch(e) {}
+        };
+
+        window.saveFileHTML = function() {
+            let clone = document.documentElement.cloneNode(true);
+            let a = document.createElement('a');
+            a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent('<!DOCTYPE html>\n' + clone.outerHTML);
+            a.download = 'scratchpad_' + Date.now() + '.html';
+            a.click();
+            window.showToast('💾 เซฟไฟล์ HTML เรียบร้อยครับ!');
+        };
+
+        window.copyBookmark = function() {
+            let clone = document.documentElement.cloneNode(true);
+            let htmlStr = '<!DOCTYPE html>\n' + clone.outerHTML;
+            let dataUri = 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlStr);
+            let tempInput = document.createElement("textarea");
+            tempInput.value = dataUri; document.body.appendChild(tempInput); tempInput.select();
+            try {
+                document.execCommand("copy");
+                window.showToast("🔖 คัดลอกโค้ด Bookmark ลงคลิปบอร์ดแล้วครับ!");
+            } catch(err) {
+                window.showAlert("เบราว์เซอร์ไม่รองรับการก๊อปปี้อัตโนมัติ กรุณาก๊อปปี้โค้ดด้านล่างนี้ด้วยตัวเอง:<br><br><textarea style='width:100%;height:100px;color:#000;'>" + dataUri + "</textarea>");
+            }
+            document.body.removeChild(tempInput);
+        };
+
+        window.exportJSON = function() {
+            let data = { scratchpad: ed.innerHTML };
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+            let a = document.createElement('a'); a.href = dataStr; a.download = "scratchpad_data_" + Date.now() + ".json"; a.click();
+            window.showToast('📤 ส่งออกไฟล์ JSON สำเร็จ!');
+        };
+
+        window.importJSON = function(e) {
+            let file = e.target.files[0]; if (!file) return;
+            let reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    let text = evt.target.result;
+                    let data = JSON.parse(text);
+                    
+                    if (data.scratchpad !== undefined) {
+                        ed.innerHTML = data.scratchpad;
+                    } else if (typeof data === "string") {
+                        ed.innerHTML = data;
+                    } else {
+                        window.showToast("⚠️ ไม่พบข้อมูลสมุดทดในไฟล์นี้");
+                        return;
+                    }
+                    
+                    let t = ed.innerText, c = t.replace(/[\r\n]/g, '').length, w = t.trim() ? t.trim().split(/\s+/).length : 0;
+                    cnt.innerText = w + ' คำ | ' + c + ' อักษร';
+                    window.saveBackup();
+                    window.showToast("✅ อิมพอร์ตข้อมูลสำเร็จเรียบร้อยครับ!");
+                } catch (err) { console.error(err); window.showAlert("เกิดข้อผิดพลาดในการอ่านไฟล์: ไฟล์อาจไม่ใช่เวอร์ชันที่รองรับ หรือข้อมูลสูญหาย<br><br>รายละเอียด Error: " + err.message); }
+            };
+            reader.readAsText(file); e.target.value = ""; 
+        };
+
+        window.fAll = function() { window.showPrompt('ค้นหาเพื่อไฮไลท์:', '', function(t) { if(!t) return; window.showPrompt('เบอร์สี 1-16 (0=ล้าง):', '5', function(m) { if(m != null) { window.getSelection().collapse(ed, 0); while(window.find(t, false, false, false)) { document.execCommand('backColor', false, m === '0' ? 'transparent' : (m === '15' ? 'rgb(60,60,60)' : (m === '16' ? 'rgb(220,220,220)' : 'rgb(255,' + m + ',1)'))); } window.saveBackup(); } }); }); };
+        window.rAll = function() { window.showPrompt('ค้นหาเพื่อแทนที่:', '', function(f) { if(!f) return; window.showPrompt('แทนที่ด้วย (เว้นว่างเพื่อลบ):', '', function(r) { if(r != null) { let c = 0; window.getSelection().collapse(ed, 0); while(window.find(f, false, false, false)) { if(r === '') document.execCommand('delete'); else document.execCommand('insertText', false, r); c++; } window.saveBackup(); window.showToast('✅ แทนที่สำเร็จ ' + c + ' จุด'); } }); }); };
+
+        ed.addEventListener('input', function() { 
+            let t = ed.innerText, c = t.replace(/[\r\n]/g, '').length, w = t.trim() ? t.trim().split(/\s+/).length : 0; 
+            cnt.innerText = w + ' คำ | ' + c + ' อักษร'; 
+            window.saveBackup(); 
+        });
+
+        window.setCropRatio = function(r, e) { e.stopPropagation(); currentCropRatio = r; let cb = document.getElementById('cropBox'); if (r) { let w = parseFloat(cb.style.width || window.innerWidth * 0.8); if (w > 0) cb.style.height = (w / r) + 'px'; } };
+        window.setCustomCropRatio = function(e) { e.stopPropagation(); window.showPrompt('กำหนดสัดส่วน (เช่น 16:9 หรือ 1920x1080):', '', function(val) { if(!val) return; let r; val = val.toLowerCase().replace(/\s/g, ''); if(val.includes(':')) { let p = val.split(':'); r = parseFloat(p[0]) / parseFloat(p[1]); } else if(val.includes('x')) { let p = val.split('x'); r = parseFloat(p[0]) / parseFloat(p[1]); } else { window.showAlert('โปรดพิมพ์สัดส่วนโดยใช้ : หรือ x ครับ (เช่น 16:9 หรือ 1920x1080)'); return; } if(r && !isNaN(r)) { window.setCropRatio(r, {stopPropagation:function(){}}); } else { window.showAlert('สัดส่วนไม่ถูกต้องครับ'); } }); };
+        window.cropMD = function(e) { e.stopPropagation(); crDrag = true; crPx = e.clientX; crPy = e.clientY; let cb = document.getElementById('cropBox'); crL = parseFloat(cb.style.left || 0); crT = parseFloat(cb.style.top || 0); };
+        window.cropRMD = function(e) { e.stopPropagation(); crResize = true; crPx = e.clientX; crPy = e.clientY; let cb = document.getElementById('cropBox'); crW = parseFloat(cb.style.width || 0); crH = parseFloat(cb.style.height || 0); };
+
+        let pngTimer = null;
+        window.doExportClick = function() {
+            if(pngTimer) clearTimeout(pngTimer);
+            pngTimer = setTimeout(function() {
+                pngTimer = null; window.setCropRatio(null, {stopPropagation: function(){}});
+                document.getElementById('cropUI').style.display = 'block';
+                document.getElementById('sp-t').style.display = 'none';
+                document.getElementById('cnt').style.display = 'none';
+                document.getElementById('float-ui-btn').style.display = 'none';
+                let cb = document.getElementById('cropBox'); cb.style.left = (window.innerWidth * 0.1) + 'px'; cb.style.top = (window.innerHeight * 0.1) + 'px'; cb.style.width = (window.innerWidth * 0.8) + 'px'; cb.style.height = (window.innerHeight * 0.8) + 'px';
+            }, 250);
+        };
+        
+        window.doExportDblClick = function() {
+            if(pngTimer) { clearTimeout(pngTimer); pngTimer = null; }
+            document.getElementById('sp-t').style.display = 'none';
+            document.getElementById('cnt').style.display = 'none';
+            document.getElementById('float-ui-btn').style.display = 'none';
+            html2canvas(document.body, { backgroundColor: window.getComputedStyle(document.body).backgroundColor, width: window.innerWidth, height: window.innerHeight }).then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'scratchpad_full_' + Date.now() + '.png'; a.click(); restoreUI(); });
+        };
+        
+        window.confirmCrop = function(e) { e.stopPropagation(); document.getElementById('cropUI').style.display = 'none'; let cb = document.getElementById('cropBox'); let rect = cb.getBoundingClientRect(); html2canvas(document.body, { x: rect.left, y: rect.top, width: rect.width, height: rect.height, backgroundColor: window.getComputedStyle(document.body).backgroundColor }).then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'scratchpad_crop_' + Date.now() + '.png'; a.click(); restoreUI(); }); };
+        window.cancelCrop = function(e) { e.stopPropagation(); document.getElementById('cropUI').style.display = 'none'; restoreUI(); };
+
+        function restoreUI() {
+            if(!uiHidden) {
+                document.getElementById('sp-t').style.display = 'flex';
+                document.getElementById('cnt').style.display = 'block';
+            } else {
+                document.getElementById('float-ui-btn').style.display = 'flex';
+            }
+        }
+
+        window.addEventListener('mousemove', function(e) {
+            if(crDrag) { let cb = document.getElementById('cropBox'); cb.style.left = (crL + e.clientX - crPx) + 'px'; cb.style.top = (crT + e.clientY - crPy) + 'px'; return; }
+            if(crResize) { let cb = document.getElementById('cropBox'); let nw = Math.max(50, crW + e.clientX - crPx); let nh = Math.max(50, crH + e.clientY - crPy); if(currentCropRatio) nh = nw / currentCropRatio; cb.style.width = nw + 'px'; cb.style.height = nh + 'px'; return; }
+        });
+
+        window.addEventListener('mouseup', function(e) {
+            if(crDrag) crDrag = false; if(crResize) crResize = false;
+        });
+
+        window.addEventListener('keydown', function(e) {
+            if(e.key === 'Tab') {
+                let active = document.activeElement;
+                if((active && active.isContentEditable) || document.activeElement === document.body) { e.preventDefault(); if(!active || !active.isContentEditable) { ed.focus(); } document.execCommand('insertText', false, '\t'); return; }
+            }
+            if(e.altKey || (e.getModifierState && e.getModifierState('AltGraph'))) {
+                let c = e.code;
+                if(c === 'KeyS') { e.preventDefault(); window.saveFileHTML(); }
+                if(c === 'KeyM') { e.preventDefault(); document.getElementById('bd').classList.toggle('shader'); }
+                if(c === 'KeyB') { e.preventDefault(); window.copyBookmark(); }
+                if(c === 'KeyF') { e.preventDefault(); window.fAll(); }
+                if(c === 'KeyP') { e.preventDefault(); window.rAll(); }
+                if(c === 'KeyC') { e.preventDefault(); document.execCommand('insertHTML', false, '<input type="checkbox" style="width:24px;height:24px;cursor:pointer;vertical-align:-4px;margin:0 8px;">&nbsp;'); }
+                if(c === 'KeyR') { e.preventDefault(); let s = window.getSelection().toString(); if(s) { window.showPrompt('คำอ่าน: ' + s, '', function(p) { if(p) document.execCommand('insertHTML', false, '<ruby>' + s + '<rt>' + p + '</rt></ruby>'); window.saveBackup(); }); } }
+                let i = ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8', 'Digit9', 'Digit0', 'Minus', 'Equal', 'BracketLeft', 'BracketRight', 'Semicolon', 'Quote', 'Backslash'].indexOf(c);
+                if(i > -1) { e.preventDefault(); document.execCommand('backColor', false, i === 16 ? 'transparent' : (i === 14 ? 'rgb(60,60,60)' : (i === 15 ? 'rgb(220,220,220)' : 'rgb(255,' + (i + 1) + ',1)'))); window.saveBackup(); }
+            }
+        });
+
+        window.onbeforeunload = function(e) { if(ed.innerText.trim()) { e.preventDefault(); e.returnValue = ''; } };
+
+        function init() {
+            let loaded = false;
+            try {
+                let backup = localStorage.getItem('sp_workspace_backup');
+                if(backup) {
+                    let data = JSON.parse(backup);
+                    if(data.scratchpad !== undefined && data.scratchpad !== "") { ed.innerHTML = data.scratchpad; loaded = true; }
+                }
+            } catch(e) {}
+            
+            let t = ed.innerText, c = t.replace(/[\r\n]/g, '').length, w = t.trim() ? t.trim().split(/\s+/).length : 0;
+            cnt.innerText = w + ' คำ | ' + c + ' อักษร';
+            ed.focus();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            try { init(); } catch(err) { console.error("Initialization Error:", err); }
+        });
+    </script>
+
+  <script src="../assets/shared.js"></script>
+</body></html>
