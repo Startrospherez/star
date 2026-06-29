@@ -168,10 +168,7 @@
                 <button onclick="window.setTheme('sepia')" style="flex:1;">Sepia</button>
                 <button onclick="window.setTheme('dark')" style="flex:1;">Dark</button>
             </div>
-            <div class="flex-row" style="margin-bottom:4px; justify-content:center;">
-                <button onclick="window.setTheme('shader')" title="Screen Shader (Alt+M)" style="flex:1;">🕶️ Shader</button>
-                <button onclick="window.toggleGrid()" title="แสดง/ซ่อนตารางพื้นหลัง" style="flex:1;">▦ Grid</button>
-            </div>
+            <button onclick="window.setTheme('shader')" title="Screen Shader (Alt+M)" style="margin-bottom:4px; width:100%;">🕶️ Shader</button>
             <div class="flex-row" style="justify-content:center;">
                 <button onclick="window.doUndo()" title="Undo (Alt+Z)" style="flex:1;">↩️ Undo</button>
                 <button onclick="window.doRedo()" title="Redo (Alt+Y)" style="flex:1;">↪️ Redo</button>
@@ -187,11 +184,15 @@
                 <button onclick="window.setShape('diamond')" title="Diamond">🔷</button>
                 <button onclick="window.setShape('scroll')" title="Scroll">📜</button>
             </div>
-            <div class="flex-row">
+            <div class="flex-row" style="margin-bottom:4px;">
                 <button onclick="window.setShape('folder')" title="Folder">📁</button>
                 <button onclick="window.setShape('tag')" title="Tag">🏷️</button>
                 <button onclick="window.setShape('speech-box')" title="Speech Bubble">💬</button>
                 <button onclick="window.setShape('think')" title="Think Bubble">💭</button>
+            </div>
+            <div class="flex-row" style="justify-content:center;">
+                <button onclick="window.toggleGrid()" title="แสดง/ซ่อนตารางพื้นหลัง" style="flex:1;">▦ Grid</button>
+                <button onclick="window.toggleSnapGrid(event)" title="ล็อกตำแหน่งกล่องให้ตรงตาราง" style="flex:1;">🧲 Snap</button>
             </div>
         </div>
         
@@ -322,6 +323,8 @@
             else if(t === 'shader') bd.classList.toggle('shader');
         };
         window.toggleGrid = function() { b.classList.toggle('show-grid'); };
+        let snapGrid = false;
+        window.toggleSnapGrid = function(e) { snapGrid = !snapGrid; if(e && e.target) e.target.style.background = snapGrid ? 'var(--c9)' : ''; };
         window.toggleHlMode = function() { bd.classList.toggle('hl-mode'); };
 
         window.saveBackup = function() {
@@ -526,7 +529,7 @@
             if(crDrag) { let cb = document.getElementById('cropBox'); cb.style.left = (crL + e.clientX - crPx) + 'px'; cb.style.top = (crT + e.clientY - crPy) + 'px'; return; }
             if(crResize) { let cb = document.getElementById('cropBox'); let nw = Math.max(50, crW + e.clientX - crPx); let nh = Math.max(50, crH + e.clientY - crPy); if(currentCropRatio) nh = nw / currentCropRatio; cb.style.width = nw + 'px'; cb.style.height = nh + 'px'; return; }
             
-            if(drag) { isMoved = true; let tdx = (e.clientX - dragStartX) / zoom, tdy = (e.clientY - dragStartY) / zoom; if(e.shiftKey) { if(Math.abs(tdx) > Math.abs(tdy)) tdy = 0; else tdx = 0; } dragStartPos.forEach(p => { p.node.style.left = (p.left + tdx) + 'px'; p.node.style.top = (p.top + tdy) + 'px'; }); px = e.clientX; py = e.clientY; updateAll(); }
+            if(drag) { isMoved = true; let tdx = (e.clientX - dragStartX) / zoom, tdy = (e.clientY - dragStartY) / zoom; if(e.shiftKey) { if(Math.abs(tdx) > Math.abs(tdy)) tdy = 0; else tdx = 0; } dragStartPos.forEach(p => { let nl = p.left + tdx, nt = p.top + tdy; if(snapGrid) { nl = Math.round(nl / 40) * 40; nt = Math.round(nt / 40) * 40; } p.node.style.left = nl + 'px'; p.node.style.top = nt + 'px'; }); px = e.clientX; py = e.clientY; updateAll(); }
             else if(isPan) { cx += e.clientX - px; cy += e.clientY - py; px = e.clientX; py = e.clientY; updateTransform(); }
             else if(isSel) { let nx = (e.clientX - cx) / zoom, ny = (e.clientY - cy) / zoom; let rx = Math.min(sx, nx), ry = Math.min(sy, ny), rw = Math.abs(nx - sx), rh = Math.abs(ny - sy); sb.style.left = rx + 'px'; sb.style.top = ry + 'px'; sb.style.width = rw + 'px'; sb.style.height = rh + 'px'; nodes.forEach(n => { let nl = parseFloat(n.style.left), nt = parseFloat(n.style.top), nw = n.offsetWidth, nh = n.offsetHeight; let inBox = (nl < rx + rw && nl + nw > rx && nt < ry + rh && nt + nh > ry); if(inBox || (isAddSel && preSel.has(n))) n.classList.add('sel'); else n.classList.remove('sel'); }); }
         });
