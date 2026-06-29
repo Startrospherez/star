@@ -57,6 +57,8 @@
         #sp-t::-webkit-scrollbar-thumb { background: rgb(170,170,170); border-radius: 3px; }
         
         #cnt { position: fixed; bottom: 15px; right: 25px; font-size: 14px; font-weight: bold; background: rgb(228,220,204); padding: 6px 12px; border-radius: 20px; border: 1px solid rgb(200,190,175); box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 999; pointer-events: none; color: rgb(60,60,60); }
+        #about-btn { position: fixed; bottom: 60px; right: 25px; width: 36px; height: 36px; background: #2196F3; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; font-family: serif; font-style: italic; font-weight: bold; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 1000; border: none; transition: all 0.2s; }
+        #about-btn:hover { background: #1976D2; transform: scale(1.1); }
         #ed { white-space: pre-wrap; tab-size: 4em; padding: 80px 32px 32px; font-size: 24px; outline: none; min-height: 100vh; box-sizing: border-box; }
         
         #float-ui-btn { position: fixed; top: 10px; left: 10px; z-index: 10000; display: none; background: rgb(255,255,255); color: rgb(0,0,0); border: 1px solid rgb(170,170,170); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px; align-items: center; justify-content: center; box-shadow: none; }
@@ -144,6 +146,7 @@
     </div>
     
     <div id="cnt">0 คำ | 0 อักษร</div>
+    <button id="about-btn" onclick="window.showAbout()" title="เกี่ยวกับ &amp; เครดิต">i</button>
     <div id="ed" contenteditable="true"></div>
 
     <!-- File Input for JSON Import -->
@@ -181,6 +184,28 @@
             t.innerHTML = msg; t.style.opacity = '1';
             if(t.tm) clearTimeout(t.tm);
             t.tm = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+        };
+
+        window.showAbout = function() {
+            let msg = `
+                <h2 style="margin-top:0;">ScratchPad V.3.71 (Standalone)</h2>
+                <p>กระดาษทดชั่วคราว ขีดเขียน ลงสี เซฟได้</p>
+                <hr style="border-color:var(--bc); margin:15px 0;">
+                <p style="font-size:14px; text-align:left;">
+                    <b>การแบ่งปัน (เครดิต):</b><br>
+                    สร้างสรรค์สำหรับใช้ส่วนตัว และเผยแผ่เป็นธรรมทานโดย : <br>
+                    <b style="color:#2196F3;">[ พระเจตภาณุ สุตธโร (P.Chetphanu Sutadharo) ]<br>
+                    [ 🪷วัดสวนธรรมพุทธรังสี จ.พระนครศรีอยุธยา (ธรรมอารี) ]<br><br>
+                    🙏ฟังธรรม ปฏิบัติธรรมออนไลน์ ร่วมกันได้ที่<br>
+                    🔵Facebook : ธรรมอารี <a href="https://www.facebook.com/dhammaaree/" target="_blank" style="color:#2196F3; text-decoration:underline;">คลิกที่นี่</a> <br>
+                    🔴YouTube : ธรรมอารี <a href="https://www.youtube.com/dhamma_aree/" target="_blank" style="color:#2196F3; text-decoration:underline;">คลิกที่นี่</a> <br>
+                    📅ทุกวัน เวลา ☀️7.00 น. และ 🌙18.30 น.<br><br>
+                    📢สนใจสมัคร คอร์สปฏิบัติธรรม ได้ที่ <a href="https://www.dhammaaree.com/other" target="_blank" style="color:#2196F3; text-decoration:underline;">ลิงก์สมัคร</a><br>
+                    🟩Line OA ธรรมอารี-คอร์สอบรม : <a href="https://line.me/R/ti/p/@course_aree" target="_blank" style="color:#2196F3; text-decoration:underline;">ลิงก์แอด</a><br>
+                    หรือ พิมพ์เพิ่มเพื่อนในไลน์ว่า @course_aree</b><br>
+                </p>
+            `;
+            window.showAlert(msg);
         };
 
         window.showAlert = function(msg) {
@@ -337,6 +362,7 @@
                 document.getElementById('cropUI').style.display = 'block';
                 document.getElementById('sp-t').style.display = 'none';
                 document.getElementById('cnt').style.display = 'none';
+                document.getElementById('about-btn').style.display = 'none';
                 document.getElementById('float-ui-btn').style.display = 'none';
                 let cb = document.getElementById('cropBox'); cb.style.left = (window.innerWidth * 0.1) + 'px'; cb.style.top = (window.innerHeight * 0.1) + 'px'; cb.style.width = (window.innerWidth * 0.8) + 'px'; cb.style.height = (window.innerHeight * 0.8) + 'px';
             }, 250);
@@ -346,6 +372,7 @@
             if(pngTimer) { clearTimeout(pngTimer); pngTimer = null; }
             document.getElementById('sp-t').style.display = 'none';
             document.getElementById('cnt').style.display = 'none';
+            document.getElementById('about-btn').style.display = 'none';
             document.getElementById('float-ui-btn').style.display = 'none';
             html2canvas(document.body, { scale: 2, backgroundColor: window.__pngTransparent ? null : window.getComputedStyle(document.body).backgroundColor, width: window.innerWidth, height: window.innerHeight }).then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'scratchpad_full_' + Date.now() + '.png'; a.click(); restoreUI(); });
         };
@@ -357,6 +384,7 @@
             if(!uiHidden) {
                 document.getElementById('sp-t').style.display = 'flex';
                 document.getElementById('cnt').style.display = 'block';
+                document.getElementById('about-btn').style.display = 'flex';
             } else {
                 document.getElementById('float-ui-btn').style.display = 'flex';
             }
