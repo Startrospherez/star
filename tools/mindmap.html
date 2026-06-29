@@ -539,10 +539,10 @@
             document.getElementById('mm-ui').style.display = 'none';
             document.getElementById('float-ui-btn').style.display = 'none';
             document.getElementById('about-btn').style.display = 'none'; clearSel();
-            html2canvas(document.body, { backgroundColor: window.getComputedStyle(document.body).backgroundColor, width: window.innerWidth, height: window.innerHeight }).then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'mindmap_full_' + Date.now() + '.png'; a.click(); restoreUI(); });
+            html2canvas(document.body, { backgroundColor: window.getComputedStyle(document.body).backgroundColor, width: window.innerWidth, height: window.innerHeight }).then(function(c) { c.toBlob(function(_b){ var _u=URL.createObjectURL(_b); var a=document.createElement('a'); a.href=_u; a.download='mindmap_full_' + Date.now() + '.png'; a.click(); setTimeout(function(){URL.revokeObjectURL(_u);},2000); },'image/png'); restoreUI(); });
         };
         
-        window.confirmCrop = function(e) { e.stopPropagation(); document.getElementById('cropUI').style.display = 'none'; clearSel(); let cb = document.getElementById('cropBox'); let rect = cb.getBoundingClientRect(); html2canvas(document.body, { x: rect.left, y: rect.top, width: rect.width, height: rect.height, backgroundColor: window.getComputedStyle(document.body).backgroundColor }).then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'mindmap_crop_' + Date.now() + '.png'; a.click(); restoreUI(); }); };
+        window.confirmCrop = function(e) { e.stopPropagation(); document.getElementById('cropUI').style.display = 'none'; clearSel(); let cb = document.getElementById('cropBox'); let rect = cb.getBoundingClientRect(); html2canvas(document.body, { x: rect.left, y: rect.top, width: rect.width, height: rect.height, backgroundColor: window.getComputedStyle(document.body).backgroundColor }).then(function(c) { c.toBlob(function(_b){ var _u=URL.createObjectURL(_b); var a=document.createElement('a'); a.href=_u; a.download='mindmap_crop_' + Date.now() + '.png'; a.click(); setTimeout(function(){URL.revokeObjectURL(_u);},2000); },'image/png'); restoreUI(); }); };
         window.cancelCrop = function(e) { e.stopPropagation(); document.getElementById('cropUI').style.display = 'none'; restoreUI(); };
 
         function restoreUI() {

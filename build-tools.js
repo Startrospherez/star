@@ -38,6 +38,16 @@ for (const t of tools) {
   const wsCount = (html.match(/'workspace_backup'/g) || []).length;
   html = html.replace(/'workspace_backup'/g, "'" + t.ns + "workspace_backup'");
 
+  // 2b. PNG export: toDataURL -> toBlob (huge data: URLs produce corrupt/
+  //     un-openable downloads in Chrome; Blob object URLs have no size limit).
+  const PNG_RE =
+    /let a = document\.createElement\('a'\); a\.href = c\.toDataURL\('image\/png'\); a\.download = ('[^']+_' \+ Date\.now\(\) \+ '\.png'); a\.click\(\);/g;
+  const pngCount = (html.match(PNG_RE) || []).length;
+  html = html.replace(
+    PNG_RE,
+    "c.toBlob(function(_b){ var _u=URL.createObjectURL(_b); var a=document.createElement('a'); a.href=_u; a.download=$1; a.click(); setTimeout(function(){URL.revokeObjectURL(_u);},2000); },'image/png');"
+  );
+
   // 3. inject shared.js before </body> (only once)
   if (!html.includes(SHARED_TAG)) {
     if (/<\/body>/i.test(html)) {
@@ -54,6 +64,7 @@ for (const t of tools) {
   console.log("== " + t.out + " ==");
   console.log("  bard removed: " + bardCount + " | size " + before + " -> " + html.length);
   console.log("  workspace_backup namespaced -> " + t.ns + "workspace_backup (x" + wsCount + ")");
+  console.log("  PNG export toDataURL->toBlob: x" + pngCount);
   console.log("  shared.js injected: " + html.includes(SHARED_TAG));
   console.log("  RESIDUE firebase=" + residue(/firebase/gi) + " apiKey=" + residue(/apiKey/g) +
     " AIzaSy=" + residue(/AIzaSy/g) + " JWT=" + residue(/eyJhbGci/g) +
