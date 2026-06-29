@@ -5,10 +5,13 @@ Thumbs.db
 .agents/
 .claude/
 
-# Source bookmarks + decoded HTML contain embedded Firebase apiKey + JWT
-# from Google AI Studio. Keep them LOCAL — never push to a public repo.
+# Original bookmark exports (data: URIs) still embed Firebase apiKey + JWT
+# from Google AI Studio. Keep them LOCAL — never push.
 *.txt
-decoded/
+
+# NOTE: decoded/ is the editable source for build-tools.js. The bard-injected
+# Firebase blocks + credentials have been stripped from it, so it is safe to
+# track and is committed (lets the repo rebuild tools/ from scratch).
 
 # Skill lockfile (local)
 skills-lock.json

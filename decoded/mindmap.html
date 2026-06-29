@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindMap V.3.71</title>
+    <style>
+        :root {
+            --bg: rgb(244,238,224); --fg: rgb(60,60,60); --tb: rgb(228,220,204); --bc: rgb(200,190,175);
+            --c1: rgb(255,153,153); --c2: rgb(255,191,128); --c3: rgb(255,230,128); --c4: rgb(255,242,128);
+            --c5: rgb(255,255,128); --c6: rgb(217,255,128); --c7: rgb(153,255,153); --c8: rgb(128,255,204);
+            --c9: rgb(128,204,255); --c10: rgb(191,128,255); --c11: rgb(255,128,255); --c12: rgb(255,128,191);
+            --c13: rgb(210,180,140); --c14: rgb(192,192,192); --c15: rgb(60,60,60); --c16: rgb(220,220,220);
+        }
+        .dark {
+            --bg: rgb(30,30,30); --fg: rgb(220,220,220); --tb: rgb(50,50,50); --bc: rgb(70,70,70); --nb: rgb(51,51,51);
+            --c1: rgb(128,0,0); --c2: rgb(153,51,0); --c3: rgb(153,102,0); --c4: rgb(128,128,0);
+            --c5: rgb(102,102,0); --c6: rgb(77,128,0); --c7: rgb(0,102,0); --c8: rgb(0,102,102);
+            --c9: rgb(0,51,153); --c10: rgb(51,0,153); --c11: rgb(102,0,102); --c12: rgb(128,0,64);
+            --c13: rgb(102,64,32); --c14: rgb(85,85,85); --c15: rgb(60,60,60); --c16: rgb(220,220,220);
+        }
+        .shader::after { content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgb(220,204,177); mix-blend-mode: multiply; pointer-events: none; z-index: 99999; }
+        
+        body { margin: 0; background: var(--bg); color: var(--fg); font-family: sans-serif; transition: background 0.3s, color 0.3s; overflow: hidden; }
+        button { cursor: pointer; padding: 4px 8px; border: 1px solid rgb(170,170,170); border-radius: 4px; background: rgb(255,255,255); color: rgb(0,0,0); transition: all 0.2s; white-space: nowrap; }
+        button:hover { background: rgb(238,238,238); }
+        .c { width: 24px; height: 24px; border-radius: 50%; padding: 0; border: 2px solid rgba(0,0,0,0.2); box-sizing: border-box; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: bold; color: rgba(0,0,0,0.6); }
+        .c:hover { transform: scale(1.2); box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        
+        .sys-ui { position: fixed; top: 0; left: 0; width: 100vw; background: var(--tb); padding: 8px 10px; border-bottom: 1px solid var(--bc); display: flex; gap: 8px; z-index: 999; align-items: center; box-sizing: border-box; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; }
+        .sys-ui::-webkit-scrollbar { height: 6px; }
+        .sys-ui::-webkit-scrollbar-thumb { background: rgb(170,170,170); border-radius: 3px; }
+        
+        .ui-col { display: flex; flex-direction: column; gap: 4px; border-right: 1px solid rgb(170,170,170); padding-right: 8px; justify-content: center; }
+        .ui-col.no-border { border-right: none; padding-right: 0; }
+        .sys-ui button { margin: 0; padding: 2px 8px; font-size: 13px; height: 26px; }
+        .sys-ui .tool-btn { width: 30px; height: 26px; font-size: 14px; display:flex; justify-content:center; align-items:center; padding: 0; }
+        
+        .flex-row { display: flex; gap: 4px; }
+        
+        #float-ui-btn { position: fixed; top: 10px; left: 10px; z-index: 10000; display: none; background: var(--bg); color: var(--fg); border: 1px solid rgb(170,170,170); width: 30px; height: 26px; border-radius: 4px; cursor: pointer; font-size: 14px; align-items: center; justify-content: center; box-shadow: none; text-shadow: none !important; }
+        #float-ui-btn:hover { background: rgb(238,238,238); }
+        
+        .huge-canvas { position: absolute; width: 20000px; height: 20000px; transform-origin: 0 0; }
+        svg { position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        
+        /* Nodes */ 
+        .n { 
+            --n-bg: var(--nb, rgb(255, 255, 255)); --n-bd: var(--bc); 
+            position: absolute; background: var(--n-bg); border: 4px solid var(--n-bd); padding: 12px 20px; border-radius: 10px; z-index: 2; cursor: grab; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); min-width: 60px; text-align: center; 
+            box-sizing: border-box; min-height: 60px;
+        } 
+        .n.sel { border-color: rgb(33,150,243) !important; --n-bd: rgb(33,150,243) !important; box-shadow: 0 0 0 3px rgba(33,150,243,0.3); }
+        .n.j { min-width: 16px !important; min-height: 16px !important; width: 16px; height: 16px; padding: 0 !important; border-radius: 50% !important; background: var(--fg) !important; border: 2px solid var(--bg) !important; box-shadow: none; resize: none; overflow: visible; }
+        .n.j .nt, .n.j .nd, .n.j .p { display: none !important; }
+        
+        /* SHAPES */ 
+        .n[data-shape="circle"] { border-radius: 50% !important; min-width: 120px; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 10px !important; }
+        .n[data-shape="ellipse"] { border-radius: 50% / 50% !important; min-width: 140px; min-height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px 30px !important; }
+        .n[data-shape="speech-box"] { border-radius: 15px !important; }
+        .n[data-shape="speech-box"]::after { content: ""; position: absolute; bottom: -10px; left: 30px; width: 18px; height: 18px; background: var(--n-bg); border-width: 0 4px 4px 0; border-style: solid; border-color: var(--n-bd); transform: rotate(45deg); z-index: -1; }
+        .n[data-shape="think"] { border-radius: 40px !important; }
+        .n[data-shape="think"]::before, .n[data-shape="think"]::after { content: ""; position: absolute; background: var(--n-bg); border-width: 4px; border-style: solid; border-color: var(--n-bd); border-radius: 50%; box-sizing: border-box; z-index: -1; }
+        .n[data-shape="think"]::before { bottom: -18px; left: 25px; width: 14px; height: 14px; }
+        .n[data-shape="think"]::after { bottom: -32px; left: 15px; width: 8px; height: 8px; }
+        .n[data-shape="scroll"] { border-radius: 0 !important; border-top: none !important; border-bottom: none !important; padding-top: 20px !important; padding-bottom: 20px !important; }
+        .n[data-shape="scroll"]::before, .n[data-shape="scroll"]::after { content: ""; position: absolute; left: -8px; right: -8px; height: 12px; background: var(--n-bg); border-width: 4px; border-style: solid; border-color: var(--n-bd); border-radius: 6px; box-sizing: border-box; }
+        .n[data-shape="scroll"]::before { top: -8px; }
+        .n[data-shape="scroll"]::after { bottom: -8px; }
+        .n[data-shape="folder"] { border-radius: 0 10px 10px 10px !important; border-top-left-radius: 0 !important; margin-top: 15px; }
+        .n[data-shape="folder"]::before { content: ""; position: absolute; bottom: 100%; left: -4px; width: 50%; max-width: 60px; height: 16px; background: var(--n-bg); border-width: 4px 4px 0 4px; border-style: solid; border-color: var(--n-bd); border-radius: 10px 10px 0 0; margin-bottom: -4px; z-index: 1; }
+        .n[data-shape="tag"] { border-radius: 10px 50px 50px 10px !important; padding-right: 40px !important; }
+        .n[data-shape="tag"]::before { content: ""; position: absolute; top: 50%; right: 12px; width: 14px; height: 14px; background: var(--bg); border: 4px solid var(--n-bd); border-radius: 50%; transform: translateY(-50%); box-shadow: inset 0 0 3px rgba(0,0,0,0.2); }
+        .n[data-shape="diamond"] { background: transparent !important; border: none !important; box-shadow: none !important; padding: 40px 30px !important; min-width: 120px; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .n[data-shape="diamond"]::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--n-bd); clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); z-index: -2; }
+        .n[data-shape="diamond"]::after { content: ""; position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; background: var(--n-bg); clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); z-index: -1; }
+
+        .nt { outline: none; font-size: 18px; min-width: 40px; width: 100%; height: 100%; box-sizing: border-box; }
+        .nd { outline: none; font-size: 14px; min-width: 40px; opacity: 0.8; margin-top: 6px; border-top: 1px dashed var(--bc); padding-top: 6px; width: 100%; box-sizing: border-box; }
+        .p { position: absolute; background: var(--bc); color: rgb(255,255,255); border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 22px; cursor: pointer; font-weight: bold; font-size: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: none; z-index: 3; }
+        .n:hover .p, .n.sel .p { display: block; }
+        .p-r { right: -15px; top: 50%; transform: translateY(-50%); }
+        .p-l { left: -15px; top: 50%; transform: translateY(-50%); }
+        .p-t { top: -15px; left: 50%; transform: translateX(-50%); }
+        .p-b { bottom: -15px; left: 50%; transform: translateX(-50%); }
+        .dx { position: absolute; left: -10px; top: -10px; background: rgb(255,77,77); color: rgb(255,255,255); border-radius: 50%; width: 20px; height: 20px; text-align: center; line-height: 18px; cursor: pointer; font-size: 12px; display: none; z-index: 4; }
+        .n:hover .dx, .n.sel .dx { display: block; }
+        .mb { position: absolute; background: var(--c9); color: #000; border: 2px solid var(--bc); border-radius: 50%; width: 18px; height: 18px; text-align: center; line-height: 14px; font-size: 14px; font-weight: bold; cursor: pointer; transform: translate(-50%,-50%); z-index: 3; pointer-events: auto; opacity: 0; transition: all 0.2s; }
+        .mb::before { content: ""; position: absolute; top: -15px; left: -15px; right: -15px; bottom: -15px; border-radius: 50%; }
+        .mb:hover { opacity: 1; transform: translate(-50%,-50%) scale(1.3); background: var(--c6); }
+        
+        .selBox { position: absolute; border: 1px dashed rgb(33,150,243); background: rgba(33,150,243,0.1); z-index: 9999; display: none; pointer-events: none; }
+        #about-btn { position: fixed; bottom: 25px; right: 25px; width: 36px; height: 36px; background: #2196F3; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; font-family: serif; font-style: italic; font-weight: bold; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 1000; border: none; transition: all 0.2s; }
+        #about-btn:hover { background: #1976D2; transform: scale(1.1); }
+    </style>
+</head>
+<body id="bd" class="" style="cursor: default;">
+    <div id="sys-modal" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);z-index:9999999;display:none;justify-content:center;align-items:center;">
+        <div style="background:var(--tb);padding:20px;border-radius:8px;max-width:400px;width:90%;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);color:var(--fg);border:1px solid var(--bc);">
+            <div id="sys-modal-msg" style="margin-bottom:15px;word-break:break-word;font-size:16px;opacity:0.85;"></div>
+            <input type="text" id="sys-modal-inp" style="display:none;width:100%;margin-bottom:15px;padding:8px;box-sizing:border-box;border-radius:4px;border:1px solid var(--bc);background:var(--bg);color:var(--fg);">
+            <div style="display:flex;justify-content:center;gap:10px;">
+                <button onclick="window.sysModalOk()" style="background:rgb(33,150,243);color:rgb(255,255,255);border:none;padding:6px 15px;border-radius:4px;font-weight:bold;">ตกลง</button>
+                <button id="sys-modal-cancel" onclick="window.sysModalCancel()" style="display:none;background:rgb(244,67,54);color:rgb(255,255,255);border:none;padding:6px 15px;border-radius:4px;font-weight:bold;">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cropUI" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:99999;display:none;pointer-events:none;">
+        <div id="cropBox" style="position:absolute;border:2px dashed rgb(255,255,255);outline:9999px solid rgba(0,0,0,0.5);background:transparent !important;pointer-events:auto;cursor:move;" onmousedown="window.cropMD(event)">
+            <div class="cr-br" style="position:absolute;bottom:-5px;right:-5px;width:15px;height:15px;background:rgb(33,150,243);cursor:nwse-resize;" onmousedown="window.cropRMD(event)"></div>
+            <div style="position:absolute;top:-5px;left:0;transform:translateY(-100%);display:flex;gap:5px;width:max-content;max-width:90vw;flex-wrap:wrap;">
+                <button onclick="window.setCropRatio(null, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">Free</button>
+                <button onclick="window.setCropRatio(1, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">1:1</button>
+                <button onclick="window.setCropRatio(4/3, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">4:3</button>
+                <button onclick="window.setCropRatio(16/9, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">16:9</button>
+                <button onclick="window.setCropRatio(9/16, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">9:16</button>
+                <button onclick="window.setCropRatio(1.185, event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">1.185:1 (PPT)</button>
+                <button onclick="window.setCustomCropRatio(event)" style="background:rgb(80,80,80);color:#fff;border:1px solid #fff;padding:4px 8px;">Custom</button>
+            </div>
+            <div style="position:absolute;bottom:-5px;right:0;transform:translateY(100%);display:flex;gap:5px;">
+                <button onclick="window.confirmCrop(event)" style="background:rgb(33,150,243);color:rgb(255,255,255);border:none;padding:5px 10px;border-radius:4px;cursor:pointer;">✅ ยืนยันถ่าย</button>
+                <button onclick="window.cancelCrop(event)" style="background:rgb(244,67,54);color:rgb(255,255,255);border:none;padding:5px 10px;border-radius:4px;cursor:pointer;">❌ ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Float Toggle UI Button -->
+    <div id="float-ui-btn" onclick="window.toggleUI()" title="แสดงแถบเครื่องมือ" style="text-shadow:none !important;">🛠️</div>
+
+    <div class="sys-ui" id="mm-ui">
+        <!-- Block 1: Tools -->
+        <div class="ui-col" style="align-items:center; justify-content:center;">
+            <button class="tool-btn" style="background:var(--bg); border-radius:4px; border:1px solid rgb(170,170,170); margin-bottom:4px; text-shadow:none !important;" onclick="window.toggleUI()" title="ซ่อนแถบเครื่องมือ">🛠️</button>
+            <button class="tool-btn" style="margin-bottom:4px;" onclick="window.changeFontSize('+')" title="เพิ่มขนาดตัวอักษรกล่องที่เลือก">A+</button>
+            <button class="tool-btn" onclick="window.changeFontSize('-')" title="ลดขนาดตัวอักษรกล่องที่เลือก">A-</button>
+        </div>
+        
+        <!-- Block 2: Colors -->
+        <div class="ui-col" id="mm-colors" style="justify-content:center;"><div class="flex-row" style="margin-bottom:8px;"><button class="c" style="background:var(--c1)" onmousedown="event.preventDefault()" onclick="setCol('bg',1)"></button><button class="c" style="background:var(--c2)" onmousedown="event.preventDefault()" onclick="setCol('bg',2)"></button><button class="c" style="background:var(--c3)" onmousedown="event.preventDefault()" onclick="setCol('bg',3)"></button><button class="c" style="background:var(--c4)" onmousedown="event.preventDefault()" onclick="setCol('bg',4)"></button><button class="c" style="background:var(--c5)" onmousedown="event.preventDefault()" onclick="setCol('bg',5)"></button><button class="c" style="background:var(--c6)" onmousedown="event.preventDefault()" onclick="setCol('bg',6)"></button><button class="c" style="background:var(--c7)" onmousedown="event.preventDefault()" onclick="setCol('bg',7)"></button><button class="c" style="background:var(--c8)" onmousedown="event.preventDefault()" onclick="setCol('bg',8)"></button><button class="c" style="background:var(--c9)" onmousedown="event.preventDefault()" onclick="setCol('bg',9)"></button><button class="c" style="background:var(--c10)" onmousedown="event.preventDefault()" onclick="setCol('bg',10)"></button><button class="c" style="background:var(--c11)" onmousedown="event.preventDefault()" onclick="setCol('bg',11)"></button><button class="c" style="background:var(--c12)" onmousedown="event.preventDefault()" onclick="setCol('bg',12)"></button><button class="c" style="background:var(--c13)" onmousedown="event.preventDefault()" onclick="setCol('bg',13)"></button><button class="c" style="background:var(--c14)" onmousedown="event.preventDefault()" onclick="setCol('bg',14)"></button><button class="c" style="background:var(--c15)" onmousedown="event.preventDefault()" onclick="setCol('bg',15)"></button><button class="c" style="background:var(--c16)" onmousedown="event.preventDefault()" onclick="setCol('bg',16)"></button><button class="c" onmousedown="event.preventDefault()" onclick="setCol('bg',0)">\</button></div><div class="flex-row" style="margin-bottom:8px;"><button class="c" style="color:var(--c1);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',1)">1</button><button class="c" style="color:var(--c2);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',2)">2</button><button class="c" style="color:var(--c3);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',3)">3</button><button class="c" style="color:var(--c4);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',4)">4</button><button class="c" style="color:var(--c5);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',5)">5</button><button class="c" style="color:var(--c6);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',6)">6</button><button class="c" style="color:var(--c7);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',7)">7</button><button class="c" style="color:var(--c8);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',8)">8</button><button class="c" style="color:var(--c9);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',9)">9</button><button class="c" style="color:var(--c10);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',10)">0</button><button class="c" style="color:var(--c11);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',11)">-</button><button class="c" style="color:var(--c12);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',12)">=</button><button class="c" style="color:var(--c13);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',13)">[</button><button class="c" style="color:var(--c14);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',14)">]</button><button class="c" style="color:var(--c15);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',15)">;</button><button class="c" style="color:var(--c16);background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol('fg',16)">'</button><button class="c" onmousedown="event.preventDefault()" onclick="setCol('fg',0)">\</button></div><div class="flex-row"><button class="c" style="border:3px solid var(--c1);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',1)" title="Alt+1"></button><button class="c" style="border:3px solid var(--c2);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',2)" title="Alt+2"></button><button class="c" style="border:3px solid var(--c3);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',3)" title="Alt+3"></button><button class="c" style="border:3px solid var(--c4);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',4)" title="Alt+4"></button><button class="c" style="border:3px solid var(--c5);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',5)" title="Alt+5"></button><button class="c" style="border:3px solid var(--c6);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',6)" title="Alt+6"></button><button class="c" style="border:3px solid var(--c7);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',7)" title="Alt+7"></button><button class="c" style="border:3px solid var(--c8);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',8)" title="Alt+8"></button><button class="c" style="border:3px solid var(--c9);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',9)" title="Alt+9"></button><button class="c" style="border:3px solid var(--c10);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',10)" title="Alt+0"></button><button class="c" style="border:3px solid var(--c11);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',11)" title="Alt+-"></button><button class="c" style="border:3px solid var(--c12);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',12)" title="Alt+="></button><button class="c" style="border:3px solid var(--c13);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',13)" title="Alt+["></button><button class="c" style="border:3px solid var(--c14);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',14)" title="Alt+]"></button><button class="c" style="border:3px solid var(--c15);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',15)" title="Alt+;"></button><button class="c" style="border:3px solid var(--c16);background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',16)" title="Alt+'"></button><button class="c" style="font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol('bd',0)">\</button></div></div>
+        
+        <!-- Block 3: Themes & History -->
+        <div class="ui-col" style="justify-content:center;">
+            <div class="flex-row" style="margin-bottom:4px; justify-content:center;">
+                <button onclick="window.setTheme('sepia')" style="flex:1;">Sepia</button>
+                <button onclick="window.setTheme('dark')" style="flex:1;">Dark</button>
+            </div>
+            <button onclick="window.setTheme('shader')" title="Screen Shader (Alt+M)" style="margin-bottom:4px; width:100%;">🕶️ Shader</button>
+            <div class="flex-row" style="justify-content:center;">
+                <button onclick="window.doUndo()" title="Undo (Alt+Z)" style="flex:1;">↩️ Undo</button>
+                <button onclick="window.doRedo()" title="Redo (Alt+Y)" style="flex:1;">↪️ Redo</button>
+            </div>
+        </div>
+        
+        <!-- Block 4: Shapes -->
+        <div class="ui-col" style="justify-content:center;">
+            <div class="flex-row" style="margin-bottom:4px;">
+                <button onclick="window.setShape('box')" title="Square">⬜</button>
+                <button onclick="window.setShape('circle')" title="Circle">⚪</button>
+                <button onclick="window.setShape('ellipse')" title="Ellipse">⭕</button>
+                <button onclick="window.setShape('diamond')" title="Diamond">🔷</button>
+                <button onclick="window.setShape('scroll')" title="Scroll">📜</button>
+            </div>
+            <div class="flex-row">
+                <button onclick="window.setShape('folder')" title="Folder">📁</button>
+                <button onclick="window.setShape('tag')" title="Tag">🏷️</button>
+                <button onclick="window.setShape('speech-box')" title="Speech Bubble">💬</button>
+                <button onclick="window.setShape('think')" title="Think Bubble">💭</button>
+            </div>
+        </div>
+        
+        <!-- Block 5: Align -->
+        <div class="ui-col" style="justify-content:center;">
+            <div class="flex-row" style="margin-bottom:4px;">
+                <button onclick="window.doAlign('t')" title="ชิดบน">⊤ T-Align</button>
+                <button onclick="window.doAlign('cy')" title="กึ่งกลางแนวนอน">⌽ C-Align</button>
+                <button onclick="window.doAlign('b')" title="ชิดล่าง">⊥ B-Align</button>
+                <button onclick="window.doDist('x')" title="กระจายแนวนอน">↔ Dist</button>
+            </div>
+            <div class="flex-row">
+                <button onclick="window.doAlign('l')" title="ชิดซ้าย">├ L-Align</button>
+                <button onclick="window.doAlign('cx')" title="กึ่งกลางแนวตั้ง">⌽ C-Align</button>
+                <button onclick="window.doAlign('r')" title="ชิดขวา">┤ R-Align</button>
+                <button onclick="window.doDist('y')" title="กระจายแนวตั้ง">↕ Dist</button>
+            </div>
+        </div>
+        
+        <!-- Block 6: File -->
+        <div class="ui-col no-border" style="justify-content:center;">
+            <div class="flex-row" style="margin-bottom:4px;">
+                <button onclick="document.getElementById('importInput').click()" title="นำเข้าข้อมูล JSON">📥 Import</button>
+                <button onclick="window.exportJSON()" title="ส่งออกข้อมูล JSON">📤 Export</button>
+            </div>
+            <div class="flex-row">
+                <button onclick="window.doExportClick()" ondblclick="window.doExportDblClick()" title="คลิกเพื่อครอป | ดับเบิลคลิกเพื่อแคปจอ">📸 PNG</button>
+                <button onclick="window.saveFileHTML()" title="เซฟเป็นไฟล์ HTML (Alt+S)">💾 HTML</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="b" class="huge-canvas" style="transform:translate(-10000px,-10000px) scale(1)" data-cx="-10000" data-cy="-10000" data-zoom="1">
+        <svg id="s"></svg>
+        <div id="selBox" class="selBox" style="left: 10811px; top: 10286px; width: 0px; height: 0px; display: none;"></div>
+    <div class="n" id="n0" data-shape="box" style="left: 10000px; top: 10000px;"><div class="dx" onclick="del('n0')" title="ลบกล่องนี้">x</div><div class="nt" contenteditable="true" oninput="this.dataset.m=1" onblur="if(this.dataset.m){window.doSaveState();this.dataset.m=''}" onmousedown="event.stopPropagation()">หัวข้อ...</div><div class="nd" contenteditable="true" oninput="this.dataset.m=1" onblur="if(this.dataset.m){window.doSaveState();this.dataset.m=''}" onmousedown="event.stopPropagation()">รายละเอียด...</div><div class="p p-r" onmousedown="window.startLineDrag(event, 'n0','r')">+</div><div class="p p-l" onmousedown="window.startLineDrag(event, 'n0','l')">+</div><div class="p p-t" onmousedown="window.startLineDrag(event, 'n0','t')">+</div><div class="p p-b" onmousedown="window.startLineDrag(event, 'n0','b')">+</div></div></div>
+
+    <!-- File Input for JSON Import -->
+    <input type="file" id="importInput" style="display:none" accept=".json" onchange="window.importJSON(event)">
+    <button id="about-btn" onclick="window.showAbout()" title="เกี่ยวกับ &amp; เครดิต">i</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
+    <script>
+        const bd = document.getElementById('bd');
+        let uiHidden = false;
+        
+        // Mindmap State
+        let b = document.getElementById('b'), s = document.getElementById('s'), sb = document.getElementById('selBox');
+        let nid = 0, drag = null, px, py, cx = -10000, cy = -10000, zoom = 1, isPan = false, isSel = false, sx, sy, isMoved = false, nodes = [], mmHistory = [], curStep = -1;
+        
+        // Selection variables
+        let isAddSel = false;
+        let preSel = new Set();
+
+        let crDrag = false, crResize = false, crPx, crPy, crW, crH, crL, crT;
+        let modalCallback = null;
+        let currentCropRatio = null;
+
+        window.toggleUI = function() {
+            uiHidden = !uiHidden;
+            if(uiHidden) {
+                document.getElementById('mm-ui').style.display = 'none';
+                document.getElementById('float-ui-btn').style.display = 'flex';
+            } else {
+                document.getElementById('float-ui-btn').style.display = 'none';
+                document.getElementById('mm-ui').style.display = 'flex';
+            }
+        };
+
+        window.showToast = function(msg) {
+            let t = document.getElementById('sys-toast');
+            if(!t) {
+                t = document.createElement('div'); t.id = 'sys-toast';
+                t.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); color:#fff; padding:12px 24px; border-radius:30px; z-index:9999999; font-size:15px; opacity:0; transition:opacity 0.3s; pointer-events:none; box-shadow:0 4px 10px rgba(0,0,0,0.3); text-align:center; border: 1px solid rgba(255,255,255,0.1);';
+                document.body.appendChild(t);
+            }
+            t.innerHTML = msg; t.style.opacity = '1';
+            if(t.tm) clearTimeout(t.tm);
+            t.tm = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+        };
+
+        window.showAbout = function() {
+            let msg = `
+                <h2 style="margin-top:0;">MindMap V.3.71 (Standalone)</h2>
+                <p>สมุดสร้าง Mindmap ส่วนตัว</p>
+                <hr style="border-color:var(--bc); margin:15px 0;">
+                <p style="font-size:14px; text-align:left;">
+                    <b>อัปเดตล่าสุด:</b> แยกร่างเป็นแอปเดี่ยว เบา โหลดเร็ว ซิงค์ผ่าน Bookmark ได้ 100%<br><br>
+                    <b>การแบ่งปัน (เครดิต):</b><br>
+                    สร้างสรรค์สำหรับใช้ส่วนตัว และเผยแผ่เป็นธรรมทานโดย : <br>
+                    <b style="color:#2196F3;">[ พระเจตภาณุ สุตธโร (P.Chetphanu Sutadharo) ]<br>
+                    [ 🪷วัดสวนธรรมพุทธรังสี จ.พระนครศรีอยุธยา (ธรรมอารี) ]<br><br>
+                    🙏ฟังธรรม ปฏิบัติธรรมออนไลน์ ร่วมกันได้ที่<br>
+                    🔵Facebook : ธรรมอารี <a href="https://www.facebook.com/dhammaaree/" target="_blank" style="color:#2196F3; text-decoration:underline;">คลิกที่นี่</a> <br>
+                    🔴YouTube : ธรรมอารี <a href="https://www.youtube.com/dhamma_aree/" target="_blank" style="color:#2196F3; text-decoration:underline;">คลิกที่นี่</a> <br>
+                    📅ทุกวัน เวลา ☀️7.00 น. และ 🌙18.30 น.<br><br>
+                    📢สนใจสมัคร คอร์สปฏิบัติธรรม ได้ที่ <a href="https://www.dhammaaree.com/other" target="_blank" style="color:#2196F3; text-decoration:underline;">ลิงก์สมัคร</a><br>
+                    🟩Line OA ธรรมอารี-คอร์สอบรม : <a href="https://line.me/R/ti/p/@course_aree" target="_blank" style="color:#2196F3; text-decoration:underline;">ลิงก์แอด</a><br>
+                    หรือ พิมพ์เพิ่มเพื่อนในไลน์ว่า @course_aree</b><br>
+                </p>
+            `;
+            window.showAlert(msg);
+        };
+
+        window.showAlert = function(msg) {
+            document.getElementById('sys-modal-msg').innerHTML = msg;
+            document.getElementById('sys-modal-inp').style.display = 'none';
+            document.getElementById('sys-modal-cancel').style.display = 'none';
+            document.getElementById('sys-modal').style.display = 'flex';
+            modalCallback = null;
+        };
+
+        window.showPrompt = function(msg, def, cb) {
+            document.getElementById('sys-modal-msg').innerHTML = msg;
+            let inp = document.getElementById('sys-modal-inp');
+            inp.style.display = 'block'; inp.value = def || '';
+            document.getElementById('sys-modal-cancel').style.display = 'inline-block';
+            document.getElementById('sys-modal').style.display = 'flex';
+            modalCallback = cb; inp.focus();
+        };
+
+        window.sysModalOk = function() { document.getElementById('sys-modal').style.display = 'none'; if (modalCallback) modalCallback(document.getElementById('sys-modal-inp').value); };
+        window.sysModalCancel = function() { document.getElementById('sys-modal').style.display = 'none'; if (modalCallback) modalCallback(null); };
+        document.getElementById('sys-modal-inp').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); window.sysModalOk(); } });
+
+        window.setTheme = function(t) {
+            if(t === 'sepia') bd.className = '';
+            else if(t === 'dark') bd.className = 'dark';
+            else if(t === 'shader') bd.classList.toggle('shader');
+        };
+
+        window.saveBackup = function() {
+            try {
+                let data = { nodes: mmHistory[curStep]?.nodes || [], lines: mmHistory[curStep]?.lines || [], nid: nid, views: { cx: cx, cy: cy, zoom: zoom } };
+                localStorage.setItem('mindmap_backup', JSON.stringify(data));
+            } catch(e) {}
+        };
+
+        window.saveFileHTML = function() {
+            updateTransform();
+            let clone = document.documentElement.cloneNode(true);
+            let a = document.createElement('a');
+            a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent('<!DOCTYPE html>\n' + clone.outerHTML);
+            a.download = 'mindmap_' + Date.now() + '.html';
+            a.click();
+            window.showToast('💾 เซฟไฟล์ HTML เรียบร้อยครับ!');
+        };
+
+        window.copyBookmark = function() {
+            updateTransform();
+            let clone = document.documentElement.cloneNode(true);
+            let htmlStr = '<!DOCTYPE html>\n' + clone.outerHTML;
+            let dataUri = 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlStr);
+            let tempInput = document.createElement("textarea");
+            tempInput.value = dataUri; document.body.appendChild(tempInput); tempInput.select();
+            try {
+                document.execCommand("copy");
+                window.showToast("🔖 คัดลอกโค้ด Bookmark ลงคลิปบอร์ดแล้วครับ!");
+            } catch(err) {
+                window.showAlert("เบราว์เซอร์ไม่รองรับการก๊อปปี้อัตโนมัติ กรุณาก๊อปปี้โค้ดด้านล่างนี้ด้วยตัวเอง:<br><br><textarea style='width:100%;height:100px;color:#000;'>" + dataUri + "</textarea>");
+            }
+            document.body.removeChild(tempInput);
+        };
+
+        window.exportJSON = function() {
+            let data = { nodes: mmHistory[curStep]?.nodes || [], lines: mmHistory[curStep]?.lines || [], nid: nid, views: { cx: cx, cy: cy, zoom: zoom } };
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+            let a = document.createElement('a'); a.href = dataStr; a.download = "mindmap_data_" + Date.now() + ".json"; a.click();
+            window.showToast('📤 ส่งออกไฟล์ JSON สำเร็จ!');
+        };
+
+        window.importJSON = function(e) {
+            let file = e.target.files[0]; if (!file) return;
+            let reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    let text = evt.target.result;
+                    let data = JSON.parse(text);
+                    
+                    let migratedMindmap = null;
+                    if (data.mindmap && data.mindmap.nodes) { migratedMindmap = data.mindmap; } 
+                    else if (data.nodes) { migratedMindmap = data; }
+
+                    if (migratedMindmap) { 
+                        mmHistory.push(migratedMindmap); curStep = mmHistory.length - 1; 
+                        if (data.views) { cx = data.views.cx || cx; cy = data.views.cy || cy; zoom = data.views.zoom || zoom; }
+                        window.loadState(curStep); 
+                    } else {
+                        window.showToast("⚠️ ไม่พบข้อมูล Mindmap ในไฟล์นี้"); return;
+                    }
+                    
+                    window.saveBackup();
+                    window.showToast("✅ อิมพอร์ตข้อมูลสำเร็จเรียบร้อยครับ!");
+                } catch (err) { console.error(err); window.showAlert("เกิดข้อผิดพลาดในการอ่านไฟล์<br><br>รายละเอียด Error: " + err.message); }
+            };
+            reader.readAsText(file); e.target.value = ""; 
+        };
+
+        window.changeFontSize = function(action) {
+            let sels = nodes.filter(n => n.classList.contains('sel'));
+            if(sels.length > 0) {
+                sels.forEach(n => {
+                    let nt = n.querySelector('.nt');
+                    if(nt) {
+                        let currentSize = parseInt(window.getComputedStyle(nt).fontSize) || 18;
+                        if(action === '+') currentSize += 2; else if(action === '-') currentSize = Math.max(8, currentSize - 2);
+                        nt.style.fontSize = currentSize + 'px';
+                    }
+                    let nd = n.querySelector('.nd');
+                    if(nd) {
+                        let cSize = parseInt(window.getComputedStyle(nd).fontSize) || 14;
+                        if(action === '+') cSize += 2; else if(action === '-') cSize = Math.max(8, cSize - 2);
+                        nd.style.fontSize = cSize + 'px';
+                    }
+                });
+                window.doSaveState();
+            } else {
+                window.showToast('⚠️ โปรดเลือกกล่องข้อความเพื่อปรับขนาดตัวอักษร');
+            }
+        };
+
+        let cHtml = '<div class="flex-row" style="margin-bottom:8px;">', r2 = '<div class="flex-row" style="margin-bottom:8px;">', r3 = '<div class="flex-row">';
+        for(let i=1; i<=16; i++) {
+            let ak = "";
+            if(i<10) ak = i.toString(); else if(i===10) ak = "0"; else if(i===11) ak = "-"; else if(i===12) ak = "="; else if(i===13) ak = "["; else if(i===14) ak = "]"; else if(i===15) ak = ";"; else if(i===16) ak = "'";
+            cHtml += '<button class="c" style="background:var(--c' + i + ')" onmousedown="event.preventDefault()" onclick="setCol(\'bg\',' + i + ')"></button>';
+            r2 += '<button class="c" style="color:var(--c' + i + ');background:transparent;font-family:sans-serif;" onmousedown="event.preventDefault()" onclick="setCol(\'fg\',' + i + ')">' + ak + '</button>';
+            r3 += '<button class="c" style="border:3px solid var(--c' + i + ');background:var(--nb,rgb(255,255,255));color:var(--fg);font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol(\'bd\',' + i + ')" title="Alt+' + ak + '"></button>';
+        }
+        cHtml += '<button class="c" onmousedown="event.preventDefault()" onclick="setCol(\'bg\',0)">\\</button></div>'; r2 += '<button class="c" onmousedown="event.preventDefault()" onclick="setCol(\'fg\',0)">\\</button></div>'; r3 += '<button class="c" style="font-size:10px;" onmousedown="event.preventDefault()" onclick="setCol(\'bd\',0)">\\</button></div>';
+        document.getElementById('mm-colors').innerHTML = cHtml + r2 + r3;
+
+        window.setCol = function(t, i) {
+            let v = i === 15 ? 'var(--c15)' : (i === 16 ? 'var(--c16)' : (i ? 'var(--c'+i+')' : ''));
+            let rgb = i === 15 ? 'rgb(60,60,60)' : (i === 16 ? 'rgb(220,220,220)' : (i ? 'rgb(255,'+i+',1)' : 'transparent'));
+            
+            let sel = window.getSelection();
+            if((t === 'fg' || t === 'bg') && sel.toString().length > 0) {
+                let activeNode = sel.anchorNode;
+                if(activeNode && activeNode.nodeType === 3) activeNode = activeNode.parentNode;
+                if(activeNode && activeNode.closest('.n')) {
+                    if(t === 'fg') document.execCommand('foreColor', false, rgb);
+                    if(t === 'bg') document.execCommand('backColor', false, rgb);
+                    window.doSaveState();
+                    return; 
+                }
+            }
+
+            let sels = nodes.filter(n => n.classList.contains('sel'));
+            if(sels.length === 0) return window.showToast('⚠️ โปรดคลิกกล่อง หรือคลุมดำเฉพาะข้อความก่อนครับ');
+            sels.forEach(n => {
+                if(t === 'bg') { n.style.background = v || ''; if(v) n.style.setProperty('--n-bg', v); else n.style.removeProperty('--n-bg'); }
+                else if(t === 'fg') { n.style.color = v || 'var(--fg)'; }
+                else if(t === 'bd') { n.style.borderColor = v || ''; if(v) n.style.setProperty('--n-bd', v); else n.style.removeProperty('--n-bd'); }
+            });
+            window.doSaveState();
+        };
+
+        window.setShape = function(s) { let sels = nodes.filter(n => n.classList.contains('sel')); if(sels.length === 0) return window.showToast('⚠️ โปรดเลือกกล่องก่อนครับ'); sels.forEach(n => { n.dataset.shape = s; }); window.doSaveState(); updateAll(); };
+        
+        window.doSaveState = function() { 
+            let state = nodes.map(n => ({ id: n.id, x: n.style.left, y: n.style.top, bg: n.style.background, fg: n.style.color, bd: n.style.borderColor, shape: n.dataset.shape || 'box', fs: n.querySelector('.nt') ? n.querySelector('.nt').style.fontSize : '', dfs: n.querySelector('.nd') ? n.querySelector('.nd').style.fontSize : '', txt: n.querySelector('.nt') ? n.querySelector('.nt').innerHTML : '', desc: n.querySelector('.nd') ? n.querySelector('.nd').innerHTML : '', type: n.classList.contains('j') ? 'j' : 'n' })); 
+            let lines = Array.from(s.querySelectorAll('line')).map(l => ({ id: l.id, n1: l.dataset.n1, n2: l.dataset.n2 })); 
+            if(curStep < mmHistory.length - 1) mmHistory = mmHistory.slice(0, curStep + 1); 
+            mmHistory.push({nodes: state, lines: lines, nid: nid}); 
+            curStep++; window.saveBackup(); 
+        };
+        
+        window.doUndo = function() { if(curStep > 0) window.loadState(curStep - 1); }; window.doRedo = function() { if(curStep < mmHistory.length - 1) window.loadState(curStep + 1); };
+        
+        window.loadState = function(step) { 
+            let state = mmHistory[step]; if(!state || !state.nodes) return; 
+            nodes.forEach(n => n.remove()); s.innerHTML = ''; document.querySelectorAll('.mb').forEach(el => el.remove()); nodes = []; nid = state.nid || 0; 
+            state.nodes.forEach(ns => { 
+                let n = document.createElement('div'); n.className = ns.type === 'j' ? 'n j' : 'n'; n.id = ns.id; n.style.left = ns.x; n.style.top = ns.y; 
+                if(ns.bg) { n.style.background = ns.bg; n.style.setProperty('--n-bg', ns.bg); } 
+                if(ns.fg) { n.style.color = ns.fg; } 
+                if(ns.bd) { n.style.borderColor = ns.bd; n.style.setProperty('--n-bd', ns.bd); } 
+                if(ns.shape) n.dataset.shape = ns.shape; 
+                n.innerHTML = '<div class="dx" onclick="del(\'' + ns.id + '\')">x</div><div class="nt" contenteditable="true" oninput="this.dataset.m=1" onblur="if(this.dataset.m){window.doSaveState();this.dataset.m=\'\'}" onmousedown="event.stopPropagation()">' + ns.txt + '</div><div class="nd" contenteditable="true" oninput="this.dataset.m=1" onblur="if(this.dataset.m){window.doSaveState();this.dataset.m=\'\'}" onmousedown="event.stopPropagation()">' + (ns.desc||'') + '</div><div class="p p-r" onmousedown="window.startLineDrag(event, \'' + ns.id + '\',\'r\')">+</div><div class="p p-l" onmousedown="window.startLineDrag(event, \'' + ns.id + '\',\'l\')">+</div><div class="p p-t" onmousedown="window.startLineDrag(event, \'' + ns.id + '\',\'t\')">+</div><div class="p p-b" onmousedown="window.startLineDrag(event, \'' + ns.id + '\',\'b\')">+</div>'; 
+                if(ns.fs) n.querySelector('.nt').style.fontSize = ns.fs; if(ns.dfs) n.querySelector('.nd').style.fontSize = ns.dfs;
+                b.appendChild(n); nodes.push(n); attachNodeEvents(n); 
+            }); 
+            state.lines.forEach(ls => { let l = document.createElementNS('http://www.w3.org/2000/svg', 'line'); l.setAttribute('stroke', 'var(--bc)'); l.setAttribute('stroke-width', '3'); l.id = ls.id; l.dataset.n1 = ls.n1; l.dataset.n2 = ls.n2; s.appendChild(l); }); 
+            updateAll(); curStep = step; 
+        };
+        
+        function updateTransform() { b.style.transform = `translate(${cx}px, ${cy}px) scale(${zoom})`; b.dataset.cx = cx; b.dataset.cy = cy; b.dataset.zoom = zoom; }
+        function attachNodeEvents(n) { 
+            n.onmousedown = function(e) { 
+                e.stopPropagation(); 
+                if(e.shiftKey) { if(n.classList.contains('sel')) { n.classList.remove('sel'); drag = null; return; } else { n.classList.add('sel'); } } 
+                else { if(!n.classList.contains('sel')) clearSel(); n.classList.add('sel'); } 
+                drag = n; px = e.clientX; py = e.clientY; n.style.cursor = 'grabbing'; isMoved = false; 
+                document.body.style.userSelect = 'none';
+            }; 
+        }
+        function addNode(x, y, pid, type = 'n') { let id = 'n' + nid++; let n = document.createElement('div'); n.className = type === 'j' ? 'n j' : 'n'; n.id = id; n.style.left = x + 'px'; n.style.top = y + 'px'; n.dataset.shape = 'box'; n.innerHTML = '<div class="dx" onclick="del(\'' + id + '\')" title="ลบกล่องนี้">x</div><div class="nt" contenteditable="true" oninput="this.dataset.m=1" onblur="if(this.dataset.m){window.doSaveState();this.dataset.m=\'\'}" onmousedown="event.stopPropagation()">หัวข้อ...</div><div class="nd" contenteditable="true" oninput="this.dataset.m=1" onblur="if(this.dataset.m){window.doSaveState();this.dataset.m=\'\'}" onmousedown="event.stopPropagation()">รายละเอียด...</div><div class="p p-r" onmousedown="window.startLineDrag(event, \'' + id + '\',\'r\')">+</div><div class="p p-l" onmousedown="window.startLineDrag(event, \'' + id + '\',\'l\')">+</div><div class="p p-t" onmousedown="window.startLineDrag(event, \'' + id + '\',\'t\')">+</div><div class="p p-b" onmousedown="window.startLineDrag(event, \'' + id + '\',\'b\')">+</div>'; b.appendChild(n); nodes.push(n); attachNodeEvents(n); if(pid) { window.createLine(pid, id); } return n; }
+        window.createLine = function(id1, id2) { let l = document.createElementNS('http://www.w3.org/2000/svg', 'line'); l.setAttribute('stroke', 'var(--bc)'); l.setAttribute('stroke-width', '3'); l.id = 'l_' + id1 + '_' + id2 + '_' + Date.now(); l.dataset.n1 = id1; l.dataset.n2 = id2; s.appendChild(l); updateLine(l); return l; };
+        window.startLineDrag = function(e, pid, dir) { e.stopPropagation(); let startX = e.clientX; let startY = e.clientY; let pNode = document.getElementById(pid); if(!pNode) return; let x1 = pNode.offsetLeft + pNode.offsetWidth / 2; let y1 = pNode.offsetTop + pNode.offsetHeight / 2; let tl = document.createElementNS('http://www.w3.org/2000/svg', 'line'); tl.setAttribute('stroke', 'var(--bc)'); tl.setAttribute('stroke-width', '3'); tl.setAttribute('stroke-dasharray', '5,5'); tl.style.pointerEvents = 'none'; tl.setAttribute('x1', x1); tl.setAttribute('y1', y1); tl.setAttribute('x2', x1); tl.setAttribute('y2', y1); s.appendChild(tl); let moved = false; s.style.pointerEvents = 'auto'; let allLines = s.querySelectorAll('line'); allLines.forEach(l => { if(l !== tl) { l.style.pointerEvents = 'auto'; l.style.strokeWidth = '20'; } }); function mm(me) { if(Math.abs(me.clientX - startX) > 5 || Math.abs(me.clientY - startY) > 5) moved = true; tl.setAttribute('x2', (me.clientX - cx) / zoom); tl.setAttribute('y2', (me.clientY - cy) / zoom); } function mu(me) { document.removeEventListener('mousemove', mm); document.removeEventListener('mouseup', mu); tl.remove(); s.style.pointerEvents = 'none'; allLines.forEach(l => { l.style.pointerEvents = 'none'; l.style.strokeWidth = '3'; }); let targetLine = me.target.closest('line'); let targetNode = me.target.closest('.n'); if(targetLine && targetLine.id.startsWith('l_')) { let n1_id = targetLine.dataset.n1; let n2_id = targetLine.dataset.n2; let mx = (me.clientX - cx) / zoom; let my = (me.clientY - cy) / zoom; targetLine.remove(); let mb = document.getElementById('mb_' + targetLine.id); if(mb) mb.remove(); let jNode = addNode(mx - 8, my - 8, null, 'j'); window.createLine(n1_id, jNode.id); window.createLine(jNode.id, n2_id); window.createLine(pid, jNode.id); window.doSaveState(); } else if(targetNode && targetNode.id !== pid) { let existing = document.querySelector('line[data-n1="' + pid + '"][data-n2="' + targetNode.id + '"], line[data-n2="' + pid + '"][data-n1="' + targetNode.id + '"]'); if(!existing) { window.createLine(pid, targetNode.id); window.doSaveState(); } } else if(moved) { let nx = (me.clientX - cx) / zoom; let ny = (me.clientY - cy) / zoom; addNode(nx - 50, ny - 30, pid); window.doSaveState(); } else { window.addLink(pid, dir); } } document.addEventListener('mousemove', mm); document.addEventListener('mouseup', mu); };
+        window.del = function(id) { let n = document.getElementById(id); if(!n) return; nodes = nodes.filter(x => x.id !== id); n.remove(); Array.from(s.querySelectorAll('line')).forEach(l => { if(l.dataset.n1 === id || l.dataset.n2 === id) { let mb = document.getElementById('mb_' + l.id); if(mb) mb.remove(); l.remove(); } }); window.doSaveState(); };
+        window.addLink = function(pid, dir) { let p = document.getElementById(pid); if(!p) return; let x = parseFloat(p.style.left); let y = parseFloat(p.style.top); if(dir === 'r') { x += 220; y += (Math.random() * 20 - 10); } else if(dir === 'l') { x -= 220; y += (Math.random() * 20 - 10); } else if(dir === 't') { y -= 160; x += (Math.random() * 20 - 10); } else if(dir === 'b') { y += 160; x += (Math.random() * 20 - 10); } else { x += 220; y += (Math.random() * 20 - 10); } let w = 150, h = 80; let isOverlap = function(nx, ny) { return nodes.some(n => { let nl = parseFloat(n.style.left), nt = parseFloat(n.style.top); let nw = n.offsetWidth || 150, nh = n.offsetHeight || 80; return !(nx + w + 20 < nl || nx > nl + nw + 20 || ny + h + 20 < nt || ny > nt + nh + 20); }); }; if(dir === 'l' || dir === 'r') { while(isOverlap(x, y)) y += 100; } else if(dir === 't' || dir === 'b') { while(isOverlap(x, y)) x += 180; } else { while(isOverlap(x, y)) y += 100; } addNode(x, y, pid); window.doSaveState(); };
+        function updateLine(l) { let n1 = document.getElementById(l.dataset.n1), n2 = document.getElementById(l.dataset.n2); if(n1 && n2) { let x1 = n1.offsetLeft + n1.offsetWidth / 2; let y1 = n1.offsetTop + n1.offsetHeight / 2; let x2 = n2.offsetLeft + n2.offsetWidth / 2; let y2 = n2.offsetTop + n2.offsetHeight / 2; l.setAttribute('x1', x1); l.setAttribute('y1', y1); l.setAttribute('x2', x2); l.setAttribute('y2', y2); let mx = (x1 + x2) / 2; let my = (y1 + y2) / 2; let mb = document.getElementById('mb_' + l.id); if(!mb) { mb = document.createElement('div'); mb.id = 'mb_' + l.id; mb.className = 'mb'; mb.innerHTML = '+'; mb.title = "คลิกเพื่อแตกแขนง"; mb.onmousedown = function(e) { e.stopPropagation(); }; mb.onclick = function(e) { e.stopPropagation(); let jNode = addNode(mx - 8, my - 8, null, 'j'); let newNode = addNode(mx + 100, my + 80, jNode.id, 'n'); l.remove(); mb.remove(); window.createLine(n1.id, jNode.id); window.createLine(jNode.id, n2.id); window.doSaveState(); }; document.getElementById('b').appendChild(mb); } mb.style.left = mx + 'px'; mb.style.top = my + 'px'; } else { l.remove(); let mb = document.getElementById('mb_' + l.id); if(mb) mb.remove(); } }
+        function updateAll() { s.querySelectorAll('line').forEach(updateLine); }
+        function clearSel() { nodes.forEach(n => n.classList.remove('sel')); }
+
+        window.addEventListener('wheel', function(e) {
+            if(e.target.closest('.sys-ui') || e.target.closest('#cropUI') || e.target.closest('#sys-modal')) return;
+            e.preventDefault();
+            let xs = (e.clientX - cx) / zoom, ys = (e.clientY - cy) / zoom;
+            zoom += e.deltaY * -0.001; zoom = Math.min(Math.max(0.1, zoom), 3); cx = e.clientX - xs * zoom; cy = e.clientY - ys * zoom; updateTransform();
+        }, {passive: false});
+
+        window.addEventListener('mousedown', function(e) {
+            if(e.target.tagName === 'BUTTON' || e.target.closest('.sys-ui') || e.target.closest('#cropUI') || e.target.closest('#sys-modal') || e.target.closest('.mb')) return;
+            if(e.target.closest('#float-ui-btn')) return;
+
+            if(e.button === 1 || e.button === 2) { isPan = true; px = e.clientX; py = e.clientY; }
+            else if(e.button === 0) { 
+                isSel = true; isAddSel = e.shiftKey; if(!isAddSel) clearSel(); preSel = new Set(nodes.filter(n => n.classList.contains('sel'))); sx = (e.clientX - cx) / zoom; sy = (e.clientY - cy) / zoom; sb.style.left = sx + 'px'; sb.style.top = sy + 'px'; sb.style.width = '0px'; sb.style.height = '0px'; sb.style.display = 'block'; 
+                document.body.style.userSelect = 'none';
+            }
+        });
+
+        window.addEventListener('contextmenu', function(e) { if(!e.target.closest('.n') && !e.target.closest('.mb')) e.preventDefault(); });
+
+        window.addEventListener('mousemove', function(e) {
+            if(crDrag) { let cb = document.getElementById('cropBox'); cb.style.left = (crL + e.clientX - crPx) + 'px'; cb.style.top = (crT + e.clientY - crPy) + 'px'; return; }
+            if(crResize) { let cb = document.getElementById('cropBox'); let nw = Math.max(50, crW + e.clientX - crPx); let nh = Math.max(50, crH + e.clientY - crPy); if(currentCropRatio) nh = nw / currentCropRatio; cb.style.width = nw + 'px'; cb.style.height = nh + 'px'; return; }
+            
+            if(drag) { isMoved = true; let sels = nodes.filter(x => x.classList.contains('sel')); let dx = (e.clientX - px) / zoom, dy = (e.clientY - py) / zoom; sels.forEach(n => { n.style.left = (parseFloat(n.style.left) || 0) + dx + 'px'; n.style.top = (parseFloat(n.style.top) || 0) + dy + 'px'; }); px = e.clientX; py = e.clientY; updateAll(); }
+            else if(isPan) { cx += e.clientX - px; cy += e.clientY - py; px = e.clientX; py = e.clientY; updateTransform(); }
+            else if(isSel) { let nx = (e.clientX - cx) / zoom, ny = (e.clientY - cy) / zoom; let rx = Math.min(sx, nx), ry = Math.min(sy, ny), rw = Math.abs(nx - sx), rh = Math.abs(ny - sy); sb.style.left = rx + 'px'; sb.style.top = ry + 'px'; sb.style.width = rw + 'px'; sb.style.height = rh + 'px'; nodes.forEach(n => { let nl = parseFloat(n.style.left), nt = parseFloat(n.style.top), nw = n.offsetWidth, nh = n.offsetHeight; let inBox = (nl < rx + rw && nl + nw > rx && nt < ry + rh && nt + nh > ry); if(inBox || (isAddSel && preSel.has(n))) n.classList.add('sel'); else n.classList.remove('sel'); }); }
+        });
+
+        window.addEventListener('mouseup', function(e) {
+            document.body.style.userSelect = '';
+            if(crDrag) crDrag = false; if(crResize) crResize = false;
+            if(drag) { drag.style.cursor = 'grab'; drag = null; if(isMoved) { window.doSaveState(); isMoved = false; } }
+            isPan = false; isSel = false; document.body.style.cursor = 'default'; sb.style.display = 'none';
+        });
+
+        window.addEventListener('dblclick', function(e) {
+            if(e.target.tagName === 'BUTTON' || e.target.closest('.sys-ui') || e.target.closest('#cropUI') || e.target.closest('#sys-modal') || e.target.closest('.mb') || e.target.closest('#about-btn')) return;
+            if(e.target.closest('.n')) return; 
+            let nx = (e.clientX - cx) / zoom, ny = (e.clientY - cy) / zoom; addNode(nx, ny, null); window.doSaveState();
+        });
+
+        window.doAlign = function(ax) { let sels = nodes.filter(n => n.classList.contains('sel')); if(sels.length < 2) return; if(ax === 't') { let min = Math.min(...sels.map(n => parseFloat(n.style.top))); sels.forEach(n => { n.style.top = min + 'px'; }); } else if(ax === 'b') { let max = Math.max(...sels.map(n => parseFloat(n.style.top) + n.offsetHeight)); sels.forEach(n => { n.style.top = (max - n.offsetHeight) + 'px'; }); } else if(ax === 'cy') { let avg = sels.reduce((s, n) => s + parseFloat(n.style.top) + n.offsetHeight / 2, 0) / sels.length; sels.forEach(n => { n.style.top = (avg - n.offsetHeight / 2) + 'px'; }); } else if(ax === 'l') { let min = Math.min(...sels.map(n => parseFloat(n.style.left))); sels.forEach(n => { n.style.left = min + 'px'; }); } else if(ax === 'r') { let max = Math.max(...sels.map(n => parseFloat(n.style.left) + n.offsetWidth)); sels.forEach(n => { n.style.left = (max - n.offsetWidth) + 'px'; }); } else if(ax === 'cx') { let avg = sels.reduce((s, n) => s + parseFloat(n.style.left) + n.offsetWidth / 2, 0) / sels.length; sels.forEach(n => { n.style.left = (avg - n.offsetWidth / 2) + 'px'; }); } updateAll(); window.doSaveState(); };
+        window.doDist = function(ax) { let sels = nodes.filter(n => n.classList.contains('sel')); if(sels.length < 3) return; if(ax === 'x') { sels.sort((a, b) => parseFloat(a.style.left) - parseFloat(b.style.left)); let min = parseFloat(sels[0].style.left), max = parseFloat(sels[sels.length - 1].style.left), totalWidth = sels.slice(0, -1).reduce((sum, n) => sum + (n.offsetWidth || 150), 0), step = (max - min - totalWidth) / (sels.length - 1); let curX = min; sels.forEach((n, i) => { n.style.left = curX + 'px'; curX += (n.offsetWidth || 150) + step; }); } else { sels.sort((a, b) => parseFloat(a.style.top) - parseFloat(b.style.top)); let min = parseFloat(sels[0].style.top), max = parseFloat(sels[sels.length - 1].style.top), totalHeight = sels.slice(0, -1).reduce((sum, n) => sum + (n.offsetHeight || 80), 0), step = (max - min - totalHeight) / (sels.length - 1); let curY = min; sels.forEach((n, i) => { n.style.top = curY + 'px'; curY += (n.offsetHeight || 80) + step; }); } updateAll(); window.doSaveState(); };
+
+        window.setCropRatio = function(r, e) { e.stopPropagation(); currentCropRatio = r; let cb = document.getElementById('cropBox'); if (r) { let w = parseFloat(cb.style.width || window.innerWidth * 0.8); if (w > 0) cb.style.height = (w / r) + 'px'; } };
+        window.setCustomCropRatio = function(e) { e.stopPropagation(); window.showPrompt('กำหนดสัดส่วน (เช่น 16:9 หรือ 1920x1080):', '', function(val) { if(!val) return; let r; val = val.toLowerCase().replace(/\s/g, ''); if(val.includes(':')) { let p = val.split(':'); r = parseFloat(p[0]) / parseFloat(p[1]); } else if(val.includes('x')) { let p = val.split('x'); r = parseFloat(p[0]) / parseFloat(p[1]); } else { window.showAlert('โปรดพิมพ์สัดส่วนโดยใช้ : หรือ x ครับ (เช่น 16:9 หรือ 1920x1080)'); return; } if(r && !isNaN(r)) { window.setCropRatio(r, {stopPropagation:function(){}}); } else { window.showAlert('สัดส่วนไม่ถูกต้องครับ'); } }); };
+        window.cropMD = function(e) { e.stopPropagation(); crDrag = true; crPx = e.clientX; crPy = e.clientY; let cb = document.getElementById('cropBox'); crL = parseFloat(cb.style.left || 0); crT = parseFloat(cb.style.top || 0); };
+        window.cropRMD = function(e) { e.stopPropagation(); crResize = true; crPx = e.clientX; crPy = e.clientY; let cb = document.getElementById('cropBox'); crW = parseFloat(cb.style.width || 0); crH = parseFloat(cb.style.height || 0); };
+
+        let pngTimer = null;
+        window.doExportClick = function() {
+            if(pngTimer) clearTimeout(pngTimer);
+            pngTimer = setTimeout(function() {
+                pngTimer = null; window.setCropRatio(null, {stopPropagation: function(){}});
+                document.getElementById('cropUI').style.display = 'block';
+                document.getElementById('mm-ui').style.display = 'none';
+                document.getElementById('float-ui-btn').style.display = 'none';
+                document.getElementById('about-btn').style.display = 'none';
+                let cb = document.getElementById('cropBox'); cb.style.left = (window.innerWidth * 0.1) + 'px'; cb.style.top = (window.innerHeight * 0.1) + 'px'; cb.style.width = (window.innerWidth * 0.8) + 'px'; cb.style.height = (window.innerHeight * 0.8) + 'px';
+            }, 250);
+        };
+        
+        window.doExportDblClick = function() {
+            if(pngTimer) { clearTimeout(pngTimer); pngTimer = null; }
+            document.getElementById('mm-ui').style.display = 'none';
+            document.getElementById('float-ui-btn').style.display = 'none';
+            document.getElementById('about-btn').style.display = 'none'; clearSel();
+            html2canvas(document.body, { backgroundColor: window.getComputedStyle(document.body).backgroundColor, width: window.innerWidth, height: window.innerHeight }).then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'mindmap_full_' + Date.now() + '.png'; a.click(); restoreUI(); });
+        };
+        
+        window.confirmCrop = function(e) { e.stopPropagation(); document.getElementById('cropUI').style.display = 'none'; clearSel(); let cb = document.getElementById('cropBox'); let rect = cb.getBoundingClientRect(); html2canvas(document.body, { x: rect.left, y: rect.top, width: rect.width, height: rect.height, backgroundColor: window.getComputedStyle(document.body).backgroundColor }).then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'mindmap_crop_' + Date.now() + '.png'; a.click(); restoreUI(); }); };
+        window.cancelCrop = function(e) { e.stopPropagation(); document.getElementById('cropUI').style.display = 'none'; restoreUI(); };
+
+        function restoreUI() {
+            if(!uiHidden) {
+                document.getElementById('mm-ui').style.display = 'flex';
+            } else {
+                document.getElementById('float-ui-btn').style.display = 'flex';
+            }
+            document.getElementById('about-btn').style.display = 'flex';
+        }
+
+        window.addEventListener('keydown', function(e) {
+            if(e.key === 'Tab') {
+                let active = document.activeElement;
+                if(active && active.classList.contains('nt')) { e.preventDefault(); if(!e.shiftKey) { let nd = active.nextElementSibling; if(nd && nd.classList.contains('nd')) nd.focus(); } return; } 
+                else if(active && active.classList.contains('nd')) { e.preventDefault(); if(e.shiftKey) { let nt = active.previousElementSibling; if(nt && nt.classList.contains('nt')) nt.focus(); } return; } 
+            }
+            if(e.altKey || (e.getModifierState && e.getModifierState('AltGraph'))) {
+                let c = e.code;
+                if(c === 'KeyS') { e.preventDefault(); window.saveFileHTML(); }
+                if(c === 'KeyM') { e.preventDefault(); document.getElementById('bd').classList.toggle('shader'); }
+                if(c === 'KeyB') { e.preventDefault(); window.copyBookmark(); }
+                if(c === 'KeyZ') { e.preventDefault(); window.doUndo(); }
+                if(c === 'KeyY') { e.preventDefault(); window.doRedo(); }
+                let i = ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8', 'Digit9', 'Digit0', 'Minus', 'Equal', 'BracketLeft', 'BracketRight', 'Semicolon', 'Quote', 'Backslash'].indexOf(c);
+                if(i > -1) { e.preventDefault(); window.setCol('bd', i === 16 ? 0 : (i + 1)); }
+            }
+        });
+
+        window.onbeforeunload = function(e) { if(nodes.length > 0) { e.preventDefault(); e.returnValue = ''; } };
+
+        function init() {
+            let isSavedHTML = document.querySelectorAll('.n').length > 0;
+            
+            if(isSavedHTML) {
+                let existingNodes = document.querySelectorAll('.n');
+                if(existingNodes.length > 0) {
+                    existingNodes.forEach(n => { nodes.push(n); attachNodeEvents(n); });
+                    let maxId = 0; nodes.forEach(n => { let num = parseInt(n.id.replace('n', '')); if(num > maxId) maxId = num; }); nid = maxId + 1;
+                    if(b.dataset.cx) { cx = parseFloat(b.dataset.cx); cy = parseFloat(b.dataset.cy); zoom = parseFloat(b.dataset.zoom); updateTransform(); }
+                    window.doSaveState();
+                }
+            } else {
+                let loaded = false;
+                try {
+                    let backup = localStorage.getItem('mindmap_backup');
+                    // Check older workspace backup if new mindmap backup doesn't exist yet
+                    if(!backup) {
+                        let oldBackup = localStorage.getItem('workspace_backup');
+                        if (oldBackup) {
+                            let oldData = JSON.parse(oldBackup);
+                            if (oldData.mindmap) {
+                                backup = JSON.stringify(oldData.mindmap);
+                                // Save to new structure and clear old if we want to migrate
+                            }
+                        }
+                    }
+
+                    if(backup) {
+                        let data = JSON.parse(backup);
+                        if(data.nodes && data.nodes.length > 0) { 
+                            mmHistory.push(data); curStep = 0; 
+                            if(data.views) { cx = data.views.cx || cx; cy = data.views.cy || cy; zoom = data.views.zoom || zoom; }
+                            window.loadState(curStep); 
+                            loaded = true; 
+                        }
+                    }
+                } catch(e) {}
+                
+                if(!loaded) {
+                    cx = window.innerWidth / 2 - 10000; cy = window.innerHeight / 2 - 10000; updateTransform(); addNode(10000, 10000, null); window.doSaveState();
+                }
+            }
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            try { init(); } catch(err) { console.error("Initialization Error:", err); }
+        });
+    </script>
+
+</body></html>
