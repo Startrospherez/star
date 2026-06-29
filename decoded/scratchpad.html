@@ -184,6 +184,9 @@
         };
 
         window.showAlert = function(msg) {
+            let modal = document.getElementById('sys-modal');
+            modal.style.alignItems = 'center';
+            modal.style.paddingTop = '0';
             document.getElementById('sys-modal-msg').innerHTML = msg;
             document.getElementById('sys-modal-inp').style.display = 'none';
             document.getElementById('sys-modal-cancel').style.display = 'none';
@@ -191,12 +194,15 @@
             modalCallback = null;
         };
 
-        window.showPrompt = function(msg, def, cb) {
+        window.showPrompt = function(msg, def, cb, top) {
+            let modal = document.getElementById('sys-modal');
+            modal.style.alignItems = top ? 'flex-start' : 'center';
+            modal.style.paddingTop = top ? '40px' : '0';
             document.getElementById('sys-modal-msg').innerHTML = msg;
             let inp = document.getElementById('sys-modal-inp');
             inp.style.display = 'block'; inp.value = def || '';
             document.getElementById('sys-modal-cancel').style.display = 'inline-block';
-            document.getElementById('sys-modal').style.display = 'flex';
+            modal.style.display = 'flex';
             modalCallback = cb; inp.focus();
         };
 
@@ -284,8 +290,33 @@
             reader.readAsText(file); e.target.value = ""; 
         };
 
-        window.fAll = function() { window.showPrompt('ค้นหาเพื่อไฮไลท์:', '', function(t) { if(!t) return; window.showPrompt('เบอร์สี 1-16 (0=ล้าง):', '5', function(m) { if(m != null) { window.getSelection().collapse(ed, 0); while(window.find(t, false, false, false)) { document.execCommand('backColor', false, m === '0' ? 'transparent' : (m === '15' ? 'rgb(60,60,60)' : (m === '16' ? 'rgb(220,220,220)' : 'rgb(255,' + m + ',1)'))); } window.saveBackup(); } }); }); };
-        window.rAll = function() { window.showPrompt('ค้นหาเพื่อแทนที่:', '', function(f) { if(!f) return; window.showPrompt('แทนที่ด้วย (เว้นว่างเพื่อลบ):', '', function(r) { if(r != null) { let c = 0; window.getSelection().collapse(ed, 0); while(window.find(f, false, false, false)) { if(r === '') document.execCommand('delete'); else document.execCommand('insertText', false, r); c++; } window.saveBackup(); window.showToast('✅ แทนที่สำเร็จ ' + c + ' จุด'); } }); }); };
+        function hlColor(m) { return m === '0' ? 'transparent' : (m === '15' ? 'rgb(60,60,60)' : (m === '16' ? 'rgb(220,220,220)' : 'rgb(255,' + m + ',1)')); }
+
+        function askHlColor(cb) {
+            if (document.getElementById('hl-color-ask')) return;
+            let ov = document.createElement('div');
+            ov.id = 'hl-color-ask';
+            ov.style.cssText = 'position:fixed;top:40px;left:0;width:100vw;z-index:9999999;display:flex;justify-content:center;';
+            let card = document.createElement('div');
+            card.style.cssText = 'background:var(--tb);color:var(--fg);border:1px solid var(--bc);border-radius:8px;padding:14px 16px;box-shadow:0 4px 12px rgba(0,0,0,.3);text-align:center;';
+            let html = '<div style="margin-bottom:10px;font-size:15px;opacity:.85;">เลือกสีไฮไลท์</div><div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:340px;">';
+            for (let m = 1; m <= 16; m++) {
+                html += '<button data-hl="' + m + '" style="width:26px;height:26px;border-radius:4px;border:1px solid var(--bc);cursor:pointer;background:' + hlColor(String(m)) + ';"></button>';
+            }
+            html += '</div><button data-hl="0" style="margin-top:10px;background:transparent;border:1px solid var(--bc);border-radius:6px;padding:6px 14px;cursor:pointer;color:var(--fg);">🚫 ล้างสี</button> <button data-hl="cancel" style="margin-top:10px;background:transparent;border:none;color:var(--fg);cursor:pointer;font-size:13px;text-decoration:underline;">ยกเลิก</button>';
+            card.innerHTML = html;
+            ov.appendChild(card);
+            function close() { if (ov.parentNode) ov.parentNode.removeChild(ov); }
+            ov.addEventListener('click', function(e) {
+                let pick = e.target.getAttribute && e.target.getAttribute('data-hl');
+                if (!pick || pick === 'cancel') { if (e.target === ov || pick === 'cancel') close(); return; }
+                close(); cb(pick);
+            });
+            document.body.appendChild(ov);
+        }
+
+        window.fAll = function() { window.showPrompt('ค้นหาเพื่อไฮไลท์:', '', function(t) { if(!t) return; askHlColor(function(m) { window.getSelection().collapse(ed, 0); while(window.find(t, false, false, false)) { document.execCommand('backColor', false, hlColor(m)); } window.saveBackup(); }); }, true); };
+        window.rAll = function() { window.showPrompt('ค้นหาเพื่อแทนที่:', '', function(f) { if(!f) return; window.showPrompt('แทนที่ด้วย (เว้นว่างเพื่อลบ):', '', function(r) { if(r != null) { let c = 0; window.getSelection().collapse(ed, 0); while(window.find(f, false, false, false)) { if(r === '') document.execCommand('delete'); else document.execCommand('insertText', false, r); c++; } window.saveBackup(); window.showToast('✅ แทนที่สำเร็จ ' + c + ' จุด'); } }, true); }, true); };
 
         ed.addEventListener('input', function() { 
             let t = ed.innerText, c = t.replace(/[\r\n]/g, '').length, w = t.trim() ? t.trim().split(/\s+/).length : 0; 

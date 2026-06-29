@@ -72,9 +72,16 @@
     obs.observe(themeEl(), { attributes: true, attributeFilter: ["class"] });
   }
 
-  // --- 3. Inject "back to hub" link --------------------------------------
-  // Floating pill, fixed at the bottom-left on every tool (consistent place,
-  // never clipped by the top toolbar).
+  // --- 3. Inject "back to hub" link + tool switcher -----------------------
+  // Floating pill, fixed at the bottom-right on every tool (consistent place,
+  // never clipped by the top toolbar). A second pill stacks just above it
+  // and, on hover, flies out a list of the other tools (no detour via Hub).
+  var TOOLS = [
+    { file: "scratchpad.html", label: "📝 ScratchPad" },
+    { file: "mindmap.html", label: "🧠 MindMap" },
+    { file: "abhidhamma.html", label: "☯️ ผังอภิธรรม" }
+  ];
+
   function injectHubLink() {
     if (document.getElementById("hub-back-link")) return;
     var a = document.createElement("a");
@@ -92,8 +99,13 @@
     a.onmouseenter = function () { a.style.opacity = "1"; };
     a.onmouseleave = function () { a.style.opacity = ".92"; };
     document.body.appendChild(a);
-    placeHubAboveInfo(a);
-    window.addEventListener("resize", function () { placeHubAboveInfo(a); });
+    var switcher = injectToolSwitcher(a);
+    function reposition() {
+      placeHubAboveInfo(a);
+      if (switcher) switcher.reposition();
+    }
+    reposition();
+    window.addEventListener("resize", reposition);
   }
 
   // Sit the Hub pill just above the tool's info (i) button, whatever its height.
@@ -103,6 +115,60 @@
     var r = info.getBoundingClientRect();
     if (r.height === 0) return;
     a.style.bottom = Math.round(window.innerHeight - r.top + 8) + "px";
+  }
+
+  // Pill that stacks above the Hub link; hover reveals the other tools.
+  function injectToolSwitcher(hubLink) {
+    if (document.getElementById("tool-switch-btn")) return null;
+    var cur = location.pathname.split("/").pop();
+    var others = TOOLS.filter(function (t) { return t.file !== cur; });
+    if (!others.length) return null;
+
+    var btn = document.createElement("div");
+    btn.id = "tool-switch-btn";
+    btn.textContent = "🔀 Tools";
+    btn.style.cssText =
+      "position:fixed;right:14px;z-index:99999;" +
+      "display:inline-flex;align-items:center;gap:4px;" +
+      "padding:7px 14px;border-radius:999px;font-weight:600;font-size:14px;" +
+      "color:#fff;background:#7a5ce0;box-shadow:0 2px 8px rgba(0,0,0,.25);opacity:.92;";
+    document.body.appendChild(btn);
+
+    var flyout = document.createElement("div");
+    flyout.id = "tool-switch-flyout";
+    flyout.style.cssText =
+      "position:fixed;right:14px;z-index:99999;display:none;flex-direction:column;gap:6px;" +
+      "background:var(--tb,#fff);border:1px solid var(--bc,#ccc);border-radius:10px;" +
+      "padding:8px;box-shadow:0 4px 16px rgba(0,0,0,.3);";
+    others.forEach(function (t) {
+      var a2 = document.createElement("a");
+      a2.href = "./" + t.file;
+      a2.textContent = t.label;
+      a2.style.cssText =
+        "display:block;padding:6px 10px;border-radius:6px;text-decoration:none;" +
+        "color:var(--fg,#222);font-size:14px;white-space:nowrap;";
+      a2.onmouseenter = function () { a2.style.background = "rgba(122,92,224,.15)"; };
+      a2.onmouseleave = function () { a2.style.background = "transparent"; };
+      flyout.appendChild(a2);
+    });
+    document.body.appendChild(flyout);
+
+    var hideTimer = null;
+    function show() { clearTimeout(hideTimer); flyout.style.display = "flex"; }
+    function scheduleHide() { hideTimer = setTimeout(function () { flyout.style.display = "none"; }, 200); }
+    btn.addEventListener("mouseenter", show);
+    btn.addEventListener("mouseleave", scheduleHide);
+    flyout.addEventListener("mouseenter", show);
+    flyout.addEventListener("mouseleave", scheduleHide);
+
+    function reposition() {
+      var r = hubLink.getBoundingClientRect();
+      if (r.height === 0) return;
+      btn.style.bottom = Math.round(window.innerHeight - r.top + 8) + "px";
+      var br = btn.getBoundingClientRect();
+      flyout.style.bottom = Math.round(window.innerHeight - br.top + 8) + "px";
+    }
+    return { reposition: reposition };
   }
 
   // Show the hub link as early as possible.
