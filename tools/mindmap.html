@@ -590,7 +590,16 @@
                 if(existingNodes.length > 0) {
                     existingNodes.forEach(n => { nodes.push(n); attachNodeEvents(n); });
                     let maxId = 0; nodes.forEach(n => { let num = parseInt(n.id.replace('n', '')); if(num > maxId) maxId = num; }); nid = maxId + 1;
-                    if(b.dataset.cx) { cx = parseFloat(b.dataset.cx); cy = parseFloat(b.dataset.cy); zoom = parseFloat(b.dataset.zoom); updateTransform(); }
+                    if(b.dataset.cx) { cx = parseFloat(b.dataset.cx); cy = parseFloat(b.dataset.cy); zoom = parseFloat(b.dataset.zoom); }
+                    // #11: pristine baked default (single n0 + sentinel transform) lands top-left;
+                    // recenter it on the viewport (account for node size). Leaves user-arranged exports untouched.
+                    if(nodes.length === 1 && nodes[0].id === 'n0' && b.dataset.cx === '-10000' && b.dataset.cy === '-10000') {
+                        let n = nodes[0], nx = parseFloat(n.style.left) || 10000, ny = parseFloat(n.style.top) || 10000;
+                        zoom = 1;
+                        cx = window.innerWidth / 2 - (nx + n.offsetWidth / 2) * zoom;
+                        cy = window.innerHeight / 2 - (ny + n.offsetHeight / 2) * zoom;
+                    }
+                    updateTransform();
                     window.doSaveState();
                 }
             } else {
