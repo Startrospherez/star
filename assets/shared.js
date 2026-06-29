@@ -47,8 +47,9 @@
     a.href = "../index.html";
     a.textContent = "← Hub";
     a.title = "Back to Study Tools Hub";
+    // bottom-right, sitting just ABOVE the tool's info (i) button.
     a.style.cssText =
-      "position:fixed;left:14px;bottom:14px;z-index:99999;" +
+      "position:fixed;right:14px;bottom:62px;z-index:99999;" +
       "display:inline-flex;align-items:center;gap:4px;" +
       "padding:7px 14px;border-radius:999px;font-weight:600;font-size:14px;" +
       "text-decoration:none;color:#fff;background:#5b8def;" +
@@ -56,6 +57,17 @@
     a.onmouseenter = function () { a.style.opacity = "1"; };
     a.onmouseleave = function () { a.style.opacity = ".92"; };
     document.body.appendChild(a);
+    placeHubAboveInfo(a);
+    window.addEventListener("resize", function () { placeHubAboveInfo(a); });
+  }
+
+  // Sit the Hub pill just above the tool's info (i) button, whatever its height.
+  function placeHubAboveInfo(a) {
+    var info = document.getElementById("about-btn");
+    if (!info) return; // keep default bottom:62px
+    var r = info.getBoundingClientRect();
+    if (r.height === 0) return;
+    a.style.bottom = Math.round(window.innerHeight - r.top + 8) + "px";
   }
 
   // Show the hub link as early as possible.
