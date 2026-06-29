@@ -12,28 +12,34 @@
   var THEME_KEY = "hub_theme"; // "light" | "dark"
 
   // --- 1. Apply global theme on load -------------------------------------
+  // Tools' own default look is already a warm/sepia cream, so both "light" and
+  // "sepia" map to "no dark"; only "dark" toggles the tool's dark class.
   function applyTheme() {
     var t = null;
     try { t = localStorage.getItem(THEME_KEY); } catch (e) {}
     if (t === "dark") document.body.classList.add("dark");
-    else if (t === "light") document.body.classList.remove("dark");
+    else if (t === "light" || t === "sepia") document.body.classList.remove("dark");
     // if unset, leave the tool's own default untouched
   }
 
   // --- 2. Sync tool's dark toggle back to the global key ------------------
+  // Preserve a "sepia" preference when the tool is not in dark mode.
   function watchTheme() {
     var obs = new MutationObserver(function () {
       try {
-        localStorage.setItem(
-          THEME_KEY,
-          document.body.classList.contains("dark") ? "dark" : "light"
-        );
+        var prev = localStorage.getItem(THEME_KEY);
+        var next = document.body.classList.contains("dark")
+          ? "dark"
+          : (prev === "sepia" ? "sepia" : "light");
+        localStorage.setItem(THEME_KEY, next);
       } catch (e) {}
     });
     obs.observe(document.body, { attributes: true, attributeFilter: ["class"] });
   }
 
   // --- 3. Inject "back to hub" link --------------------------------------
+  // Floating pill, fixed at the bottom-left on every tool (consistent place,
+  // never clipped by the top toolbar).
   function injectHubLink() {
     if (document.getElementById("hub-back-link")) return;
     var a = document.createElement("a");
@@ -41,23 +47,15 @@
     a.href = "../index.html";
     a.textContent = "← Hub";
     a.title = "Back to Study Tools Hub";
-
-    var bar = document.querySelector(".sys-ui");
-    if (bar) {
-      // MindMap / Abhidhamma: prepend into the existing top bar, styled distinct
-      a.style.cssText =
-        "display:inline-flex;align-items:center;gap:4px;margin-right:8px;" +
-        "padding:2px 10px;border-radius:6px;font-weight:600;text-decoration:none;" +
-        "color:#fff;background:#5b8def;white-space:nowrap;flex:0 0 auto;";
-      bar.insertBefore(a, bar.firstChild);
-    } else {
-      // ScratchPad (no .sys-ui): floating link, top-left, out of the way
-      a.style.cssText =
-        "position:fixed;top:8px;left:8px;z-index:99999;" +
-        "padding:4px 12px;border-radius:6px;font-weight:600;text-decoration:none;" +
-        "color:#fff;background:#5b8def;opacity:.85;box-shadow:0 1px 4px rgba(0,0,0,.25);";
-      document.body.appendChild(a);
-    }
+    a.style.cssText =
+      "position:fixed;left:14px;bottom:14px;z-index:99999;" +
+      "display:inline-flex;align-items:center;gap:4px;" +
+      "padding:7px 14px;border-radius:999px;font-weight:600;font-size:14px;" +
+      "text-decoration:none;color:#fff;background:#5b8def;" +
+      "box-shadow:0 2px 8px rgba(0,0,0,.25);opacity:.92;";
+    a.onmouseenter = function () { a.style.opacity = "1"; };
+    a.onmouseleave = function () { a.style.opacity = ".92"; };
+    document.body.appendChild(a);
   }
 
   // Show the hub link as early as possible.

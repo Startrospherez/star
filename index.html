@@ -51,25 +51,43 @@
     อยากย้ายไปทำต่อเครื่องอื่น: ในเครื่องมือกด <b>Export</b> เป็นไฟล์ → เครื่องอื่นกด <b>Import</b> เปิดไฟล์นั้น
   </footer>
 
+  <button class="info-btn" id="infoBtn" type="button" title="เกี่ยวกับ">i</button>
+  <div class="info-panel" id="infoPanel">
+    <b>★ star · study tools</b><br>
+    ที่รวมเครื่องมือการเรียนส่วนตัว เลือกเครื่องมือแล้วใช้งานได้เลย<br><br>
+    งานถูกเก็บในเบราว์เซอร์เครื่องนี้อัตโนมัติ · ย้ายข้ามเครื่องด้วยปุ่ม Export/Import ในแต่ละเครื่องมือ<br><br>
+    <span style="opacity:.7">เปิดเว็บครั้งแรกต้องมีอินเทอร์เน็ต · หลังโหลดแล้วขีดเขียน/เซฟได้แม้ออฟไลน์</span>
+  </div>
+
   <script>
     (function () {
       var btn = document.getElementById("themeToggle");
-      function render() {
-        var dark = document.body.classList.contains("dark");
-        btn.textContent = dark ? "☀️ Light" : "🌙 Dark";
-      }
-      // init from saved theme
-      try {
-        if (localStorage.getItem("hub_theme") === "dark") document.body.classList.add("dark");
-      } catch (e) {}
-      document.documentElement.removeAttribute("data-pretheme");
-      render();
-      btn.addEventListener("click", function () {
-        document.body.classList.toggle("dark");
+      var ORDER = ["light", "sepia", "dark"];
+      var LABEL = { light: "🌙 Dark", sepia: "🌙 Dark", dark: "☀️ Light" };
+      var NEXT = { light: "sepia", sepia: "dark", dark: "light" };
+
+      function getTheme() {
         try {
-          localStorage.setItem("hub_theme", document.body.classList.contains("dark") ? "dark" : "light");
-        } catch (e) {}
-        render();
+          var t = localStorage.getItem("hub_theme");
+          return ORDER.indexOf(t) >= 0 ? t : "light";
+        } catch (e) { return "light"; }
+      }
+      function apply(t) {
+        document.body.classList.remove("sepia", "dark");
+        if (t === "sepia") document.body.classList.add("sepia");
+        else if (t === "dark") document.body.classList.add("dark");
+        try { localStorage.setItem("hub_theme", t); } catch (e) {}
+        btn.textContent = (t === "sepia" ? "🟤 Sepia" : (t === "dark" ? "☀️ Light" : "🌙 Dark"));
+      }
+      apply(getTheme());
+      document.documentElement.removeAttribute("data-pretheme");
+      btn.addEventListener("click", function () { apply(NEXT[getTheme()]); });
+
+      // info (i) button
+      var ib = document.getElementById("infoBtn"), ip = document.getElementById("infoPanel");
+      ib.addEventListener("click", function (e) { e.stopPropagation(); ip.classList.toggle("open"); });
+      document.addEventListener("click", function (e) {
+        if (ip.classList.contains("open") && !ip.contains(e.target) && e.target !== ib) ip.classList.remove("open");
       });
     })();
   </script>
