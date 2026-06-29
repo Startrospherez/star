@@ -135,7 +135,8 @@
         
         <button onclick="document.getElementById('importInput').click()" title="นำเข้าข้อมูล JSON">📥 Import</button>
         <button onclick="window.exportJSON()" title="ส่งออกข้อมูล JSON">📤 Export</button>
-        <button onclick="window.doExportClick()" ondblclick="window.doExportDblClick()" title="คลิกเพื่อครอปกรอบ | ดับเบิลคลิกเพื่อแคปทั้งจอ">📸 PNG</button>
+        <button onclick="window.__pngTransparent=false; window.doExportClick()" ondblclick="window.__pngTransparent=false; window.doExportDblClick()" title="พื้นหลังทึบ — คลิก=ครอป | ดับเบิลคลิก=เต็มจอ">📸 ทึบ</button>
+        <button onclick="window.__pngTransparent=true; window.doExportClick()" ondblclick="window.__pngTransparent=true; window.doExportDblClick()" title="พื้นหลังโปร่งใส — คลิก=ครอป | ดับเบิลคลิก=เต็มจอ">📸 ใส</button>
         <button onclick="window.saveFileHTML()" title="Alt+S">💾 HTML</button>
     </div>
     
@@ -312,10 +313,10 @@
             document.getElementById('sp-t').style.display = 'none';
             document.getElementById('cnt').style.display = 'none';
             document.getElementById('float-ui-btn').style.display = 'none';
-            html2canvas(document.body, { backgroundColor: window.getComputedStyle(document.body).backgroundColor, width: window.innerWidth, height: window.innerHeight }).then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'scratchpad_full_' + Date.now() + '.png'; a.click(); restoreUI(); });
+            html2canvas(document.body, { scale: 2, backgroundColor: window.__pngTransparent ? null : window.getComputedStyle(document.body).backgroundColor, width: window.innerWidth, height: window.innerHeight }).then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'scratchpad_full_' + Date.now() + '.png'; a.click(); restoreUI(); });
         };
         
-        window.confirmCrop = function(e) { e.stopPropagation(); document.getElementById('cropUI').style.display = 'none'; let cb = document.getElementById('cropBox'); let rect = cb.getBoundingClientRect(); html2canvas(document.body, { x: rect.left, y: rect.top, width: rect.width, height: rect.height, backgroundColor: window.getComputedStyle(document.body).backgroundColor }).then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'scratchpad_crop_' + Date.now() + '.png'; a.click(); restoreUI(); }); };
+        window.confirmCrop = function(e) { e.stopPropagation(); let cb = document.getElementById('cropBox'); let rect = cb.getBoundingClientRect(); document.getElementById('cropUI').style.display = 'none'; html2canvas(document.body, { x: rect.left, y: rect.top, width: rect.width, height: rect.height, scale: 2, backgroundColor: window.__pngTransparent ? null : window.getComputedStyle(document.body).backgroundColor }).then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'scratchpad_crop_' + Date.now() + '.png'; a.click(); restoreUI(); }); };
         window.cancelCrop = function(e) { e.stopPropagation(); document.getElementById('cropUI').style.display = 'none'; restoreUI(); };
 
         function restoreUI() {

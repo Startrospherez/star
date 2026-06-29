@@ -35,6 +35,13 @@ body {
   font-family: -apple-system, "Segoe UI", Roboto, "Sarabun", "Noto Sans Thai", sans-serif;
   line-height: 1.5;
   min-height: 100vh;
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+/* smooth theme cross-fade for all themed surfaces */
+.theme-toggle, footer, .hero p, .card .desc,
+.info-btn, .info-panel {
+  transition: background-color 0.35s ease, color 0.35s ease,
+              border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
 .topbar {
@@ -93,7 +100,8 @@ body {
   box-shadow: var(--shadow);
   text-decoration: none;
   color: inherit;
-  transition: transform 0.12s ease, border-color 0.12s ease;
+  transition: transform 0.12s ease, border-color 0.35s ease,
+              background-color 0.35s ease, color 0.35s ease, box-shadow 0.35s ease;
 }
 .card:hover { transform: translateY(-3px); border-color: var(--accent); }
 .card .icon { font-size: 30px; }

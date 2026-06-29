@@ -191,7 +191,8 @@
                 <button onclick="window.exportJSON()" title="ส่งออกข้อมูล JSON">📤 Export</button>
             </div>
             <div class="flex-row">
-                <button onclick="window.doExportClick()" ondblclick="window.doExportDblClick()" title="คลิกเพื่อครอป | ดับเบิลคลิกเพื่อแคปจอ">📸 PNG</button>
+                <button onclick="window.__pngTransparent=false; window.doExportClick()" ondblclick="window.__pngTransparent=false; window.doExportDblClick()" title="พื้นหลังทึบ — คลิก=ครอป | ดับเบิลคลิก=เต็มจอ">📸 ทึบ</button>
+                <button onclick="window.__pngTransparent=true; window.doExportClick()" ondblclick="window.__pngTransparent=true; window.doExportDblClick()" title="พื้นหลังโปร่งใส — คลิก=ครอป | ดับเบิลคลิก=เต็มจอ">📸 ใส</button>
                 <button onclick="window.saveFileHTML()" title="เซฟเป็นไฟล์ HTML (Alt+S)">💾 HTML</button>
             </div>
         </div>
@@ -539,10 +540,10 @@
             document.getElementById('mm-ui').style.display = 'none';
             document.getElementById('float-ui-btn').style.display = 'none';
             document.getElementById('about-btn').style.display = 'none'; clearSel();
-            (function(){ var _el=document.getElementById('b')||document.body; var _r=_el.getBoundingClientRect(); return html2canvas(_el, { x: Math.round(-_r.left), y: Math.round(-_r.top), width: window.innerWidth, height: window.innerHeight, windowWidth: _el.offsetWidth, windowHeight: _el.offsetHeight, backgroundColor: window.getComputedStyle(document.body).backgroundColor }); })().then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'mindmap_full_' + Date.now() + '.png'; a.click(); restoreUI(); });
+            (function(){ var _el=document.getElementById('b')||document.body; var _r=_el.getBoundingClientRect(); return html2canvas(_el, { x: Math.round(-_r.left), y: Math.round(-_r.top), width: window.innerWidth, height: window.innerHeight, windowWidth: _el.offsetWidth, windowHeight: _el.offsetHeight, scale: 2, backgroundColor: window.__pngTransparent ? null : window.getComputedStyle(document.body).backgroundColor }); })().then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'mindmap_full_' + Date.now() + '.png'; a.click(); restoreUI(); });
         };
         
-        window.confirmCrop = function(e) { e.stopPropagation(); let cb = document.getElementById('cropBox'); let rect = cb.getBoundingClientRect(); document.getElementById('cropUI').style.display = 'none'; clearSel(); (function(){ var _el=document.getElementById('b')||document.body; var _br=_el.getBoundingClientRect(); return html2canvas(_el, { x: Math.round(rect.left-_br.left), y: Math.round(rect.top-_br.top), width: rect.width, height: rect.height, windowWidth: _el.offsetWidth, windowHeight: _el.offsetHeight, backgroundColor: window.getComputedStyle(document.body).backgroundColor }); })().then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'mindmap_crop_' + Date.now() + '.png'; a.click(); restoreUI(); }); };
+        window.confirmCrop = function(e) { e.stopPropagation(); let cb = document.getElementById('cropBox'); let rect = cb.getBoundingClientRect(); document.getElementById('cropUI').style.display = 'none'; clearSel(); (function(){ var _el=document.getElementById('b')||document.body; var _br=_el.getBoundingClientRect(); return html2canvas(_el, { x: Math.round(rect.left-_br.left), y: Math.round(rect.top-_br.top), width: rect.width, height: rect.height, windowWidth: _el.offsetWidth, windowHeight: _el.offsetHeight, scale: 2, backgroundColor: window.__pngTransparent ? null : window.getComputedStyle(document.body).backgroundColor }); })().then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'mindmap_crop_' + Date.now() + '.png'; a.click(); restoreUI(); }); };
         window.cancelCrop = function(e) { e.stopPropagation(); document.getElementById('cropUI').style.display = 'none'; restoreUI(); };
 
         function restoreUI() {
