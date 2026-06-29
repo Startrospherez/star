@@ -190,6 +190,7 @@
             let msg = `
                 <h2 style="margin-top:0;">ScratchPad V.3.71 (Standalone)</h2>
                 <p>กระดาษทดชั่วคราว ขีดเขียน ลงสี เซฟได้</p>
+                <p style="font-size:14px; text-align:left;">พิมพ์/ขีดเขียนได้เลย งานถูกเก็บในเครื่องนี้อัตโนมัติ<br>ย้ายข้ามเครื่อง: <b>Export</b> เป็นไฟล์ → อีกเครื่อง <b>Import</b></p>
                 <hr style="border-color:var(--bc); margin:15px 0;">
                 <p style="font-size:14px; text-align:left;">
                     <b>การแบ่งปัน (เครดิต):</b><br>
@@ -439,6 +440,4 @@
             try { init(); } catch(err) { console.error("Initialization Error:", err); }
         });
     </script>
-
-<button id="about-btn" title="เกี่ยวกับ" onclick="window.showAlert && window.showAlert('<b>ScratchPad</b> — กระดาษทดชั่วคราว<br><br>พิมพ์/ขีดเขียนได้เลย งานถูกเก็บในเครื่องนี้อัตโนมัติ<br>ย้ายข้ามเครื่อง: <b>Export</b> เป็นไฟล์ → อีกเครื่อง <b>Import</b>')" style="position:fixed;right:25px;bottom:54px;z-index:9998;width:36px;height:36px;border-radius:50%;border:1px solid var(--bc);background:var(--tb);color:var(--fg);font-style:italic;font-weight:700;font-size:17px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2);">i</button>
 </body></html>

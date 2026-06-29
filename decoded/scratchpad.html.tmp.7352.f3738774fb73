@@ -190,7 +190,6 @@
             let msg = `
                 <h2 style="margin-top:0;">ScratchPad V.3.71 (Standalone)</h2>
                 <p>กระดาษทดชั่วคราว ขีดเขียน ลงสี เซฟได้</p>
-                <p style="font-size:14px; text-align:left;">พิมพ์/ขีดเขียนได้เลย งานถูกเก็บในเครื่องนี้อัตโนมัติ<br>ย้ายข้ามเครื่อง: <b>Export</b> เป็นไฟล์ → อีกเครื่อง <b>Import</b></p>
                 <hr style="border-color:var(--bc); margin:15px 0;">
                 <p style="font-size:14px; text-align:left;">
                     <b>การแบ่งปัน (เครดิต):</b><br>
@@ -246,16 +245,16 @@
             try {
                 let data = { scratchpad: ed.innerHTML };
                 // Using general workspace key for backwards compatibility
-                let oldBackup = localStorage.getItem('sp_workspace_backup');
+                let oldBackup = localStorage.getItem('workspace_backup');
                 if (oldBackup) {
                     try {
                         let parsed = JSON.parse(oldBackup);
                         parsed.scratchpad = ed.innerHTML;
-                        localStorage.setItem('sp_workspace_backup', JSON.stringify(parsed));
+                        localStorage.setItem('workspace_backup', JSON.stringify(parsed));
                         return;
                     } catch(e) {}
                 }
-                localStorage.setItem('sp_workspace_backup', JSON.stringify(data));
+                localStorage.setItem('workspace_backup', JSON.stringify(data));
             } catch(e) {}
         };
 
@@ -375,10 +374,10 @@
             document.getElementById('cnt').style.display = 'none';
             document.getElementById('about-btn').style.display = 'none';
             document.getElementById('float-ui-btn').style.display = 'none';
-            html2canvas(document.body, { scale: 2, backgroundColor: window.__pngTransparent ? null : window.getComputedStyle(document.body).backgroundColor, width: window.innerWidth, height: window.innerHeight }).then(function(c) { c.toBlob(function(_b){ var _u=URL.createObjectURL(_b); var a=document.createElement('a'); a.href=_u; a.download='scratchpad_full_' + Date.now() + '.png'; a.click(); setTimeout(function(){URL.revokeObjectURL(_u);},2000); },'image/png'); restoreUI(); });
+            html2canvas(document.body, { scale: 2, backgroundColor: window.__pngTransparent ? null : window.getComputedStyle(document.body).backgroundColor, width: window.innerWidth, height: window.innerHeight }).then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'scratchpad_full_' + Date.now() + '.png'; a.click(); restoreUI(); });
         };
         
-        window.confirmCrop = function(e) { e.stopPropagation(); let cb = document.getElementById('cropBox'); let rect = cb.getBoundingClientRect(); document.getElementById('cropUI').style.display = 'none'; html2canvas(document.body, { x: rect.left, y: rect.top, width: rect.width, height: rect.height, scale: 2, backgroundColor: window.__pngTransparent ? null : window.getComputedStyle(document.body).backgroundColor }).then(function(c) { c.toBlob(function(_b){ var _u=URL.createObjectURL(_b); var a=document.createElement('a'); a.href=_u; a.download='scratchpad_crop_' + Date.now() + '.png'; a.click(); setTimeout(function(){URL.revokeObjectURL(_u);},2000); },'image/png'); restoreUI(); }); };
+        window.confirmCrop = function(e) { e.stopPropagation(); let cb = document.getElementById('cropBox'); let rect = cb.getBoundingClientRect(); document.getElementById('cropUI').style.display = 'none'; html2canvas(document.body, { x: rect.left, y: rect.top, width: rect.width, height: rect.height, scale: 2, backgroundColor: window.__pngTransparent ? null : window.getComputedStyle(document.body).backgroundColor }).then(function(c) { let a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'scratchpad_crop_' + Date.now() + '.png'; a.click(); restoreUI(); }); };
         window.cancelCrop = function(e) { e.stopPropagation(); document.getElementById('cropUI').style.display = 'none'; restoreUI(); };
 
         function restoreUI() {
@@ -424,7 +423,7 @@
         function init() {
             let loaded = false;
             try {
-                let backup = localStorage.getItem('sp_workspace_backup');
+                let backup = localStorage.getItem('workspace_backup');
                 if(backup) {
                     let data = JSON.parse(backup);
                     if(data.scratchpad !== undefined && data.scratchpad !== "") { ed.innerHTML = data.scratchpad; loaded = true; }
@@ -440,5 +439,4 @@
             try { init(); } catch(err) { console.error("Initialization Error:", err); }
         });
     </script>
-  <script src="../assets/shared.js"></script>
 </body></html>
